@@ -10,7 +10,7 @@ export default function PopupView() {
         <Bubble className="bubble" $top="18%" $left="21%" $width="20%" $dx="28px" $dy="18px" $dur="6.6s">
           <BubbleImg className="bubbleImg" src="/bubble/1.png" alt="bubble" $float="2.8s" />
         </Bubble>
-        <Bubble className="bubble" $top="24%" $left="58%" $width="22%" $dx="32px" $dy="20px" $dur="5.7s">
+        <Bubble className="bubble" $top="24%" $left="57%" $width="22%" $dx="32px" $dy="20px" $dur="5.7s">
           <BubbleImg className="bubbleImg" src="/bubble/1.png" alt="bubble" $float="2.4s" />
         </Bubble>
         <Bubble className="bubble" $top="38%" $left="34%" $width="18%" $dx="26px" $dy="18px" $dur="5.3s">
