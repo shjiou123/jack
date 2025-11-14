@@ -17,16 +17,22 @@ const breath = keyframes`
   50% { opacity: 1; }
 `;
 
-const burstDriftX = keyframes`
-  0%   { transform: translateX(calc(var(--bDx, 14px) * -1)); }
-  50%  { transform: translateX(calc(var(--bDx, 14px) * 0.5)); }
+/* Inward-only drift/float so edges never reveal gaps */
+const burstDriftInTL = keyframes`
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(calc(var(--bDx, 14px) * 0.6)); }
   100% { transform: translateX(var(--bDx, 14px)); }
 `;
 
-const burstFloatY = keyframes`
-  0%   { transform: translateY(0) rotate(0.05deg) }
-  50%  { transform: translateY(calc(var(--bDy, 10px) * -0.6)) rotate(-0.05deg) }
-  100% { transform: translateY(calc(var(--bDy, 10px) * -1)) rotate(-0.1deg) }
+const burstDriftInBR = keyframes`
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(calc(var(--bDx, 14px) * -0.6)); }
+  100% { transform: translateX(calc(var(--bDx, 14px) * -1)); }
+`;
+
+const burstPanLeft = keyframes`
+  0%   { transform: translateX(0) scale(var(--bScale, 1.06)); }
+  100% { transform: translateX(calc(-1 * var(--bPan, 5vw))) scale(var(--bScale, 1.06)); }
 `;
 
 const popOut = keyframes`
@@ -35,6 +41,10 @@ const popOut = keyframes`
   100% { transform: scale(1.24); opacity: 0; filter: blur(2px); }
 `;
 
+const burstPanRight = keyframes`
+  0%   { transform: translateX(0) scale(var(--bScale, 1.06)); }
+  100% { transform: translateX(var(--bPan, 5vw)) scale(var(--bScale, 1.06)); }
+`;
 export const GlobalStyles = createGlobalStyle`
   .bubbleWrap { cursor: grab; touch-action: none; }
   .bubbleWrap:active { cursor: grabbing; }
@@ -77,6 +87,10 @@ export const Bubble = styled.div`
   --dx: ${(p) => p.$dx || '18px'};
   --dy: ${(p) => p.$dy || '16px'};
   ${(p) => p.$dur ? css`animation: ${driftX} ${p.$dur} ease-in-out infinite alternate;` : ''}
+  &.popping {
+    animation: ${popOut} 320ms cubic-bezier(.2,.8,.2,1) forwards !important;
+    pointer-events: none;
+  }
 `;
 
 export const BubbleImg = styled.img`
@@ -113,7 +127,9 @@ export const BurstWrap = styled.div`
   transform-origin: top left;
   will-change: transform, opacity, filter;
   --bDx: 16px;
-  animation: ${burstDriftX} var(--bDurX, 24s) ease-in-out infinite alternate;
+  overflow: hidden;
+  /* Wrapper stays pinned; no wrapper drift to avoid exposing edges */
+  animation: none;
   &.popping {
     animation: ${popOut} 320ms cubic-bezier(.2,.8,.2,1) forwards;
     pointer-events: none;
@@ -126,8 +142,10 @@ export const BurstImg = styled.img`
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
-  --bDy: 12px;
-  animation: ${burstFloatY} var(--bDurY, 20s) ease-in-out infinite alternate;
+  --bPan: 5vw;
+  --bScale: 1.08;
+  will-change: transform;
+  animation: ${burstPanLeft} var(--bDurY, 26s) ease-in-out infinite alternate;
 `;
 
 export const BurstWrapBR = styled(BurstWrap)`
@@ -136,6 +154,19 @@ export const BurstWrapBR = styled(BurstWrap)`
   right: 0;
   bottom: 0;
   transform-origin: bottom right;
+  animation: none;
+`;
+
+export const BurstWrapTR = styled(BurstWrap)`
+  left: auto;
+  right: 0;
+  bottom: auto;
+  top: 0;
+  z-index: 12; /* highest among clusters */
+  transform-origin: top right;
+  & ${BurstImg} {
+    animation: ${burstPanRight} var(--bDurY, 26s) ease-in-out infinite alternate;
+  }
 `;
 
 

@@ -57,62 +57,62 @@ export default function MainPage() {
       <GlobalStyles />
 
       {/* Floating clouds (top group with fixed class timing) */}
-      <CloudWrap className="cloudWrap cloud1" $top="40px" $left="44%" $width="28vw" $maxWidth="680px" $zIndex={5}>
+      <CloudWrap className="cloudWrap cloud1" $top="40px" $left="44%" $width="42vw" $maxWidth="1020px" $zIndex={5}>
         <CloudImg className="cloudImg cloudImg1" src="/cloud/구름1.png" alt="Cloud" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap cloud2" $top="110px" $left="48%" $width="30vw" $maxWidth="780px" $zIndex={5}>
+      <CloudWrap className="cloudWrap cloud2" $top="110px" $left="48%" $width="45vw" $maxWidth="1170px" $zIndex={5}>
         <CloudImg className="cloudImg cloudImg2" src="/cloud/구름2.png" alt="Cloud" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap cloud3" $top="180px" $left="52%" $width="26vw" $maxWidth="680px" $zIndex={5}>
+      <CloudWrap className="cloudWrap cloud3" $top="180px" $left="52%" $width="39vw" $maxWidth="1020px" $zIndex={5}>
         <CloudImg className="cloudImg cloudImg3" src="/cloud/구름1.png" alt="Cloud" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap cloud4" $top="240px" $left="56%" $width="34vw" $maxWidth="900px" $zIndex={5}>
+      <CloudWrap className="cloudWrap cloud4" $top="240px" $left="56%" $width="51vw" $maxWidth="1350px" $zIndex={5}>
         <CloudImg className="cloudImg cloudImg4" src="/cloud/구름2.png" alt="Cloud" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap cloud5" $top="300px" $left="60%" $width="24vw" $maxWidth="620px" $zIndex={5}>
+      <CloudWrap className="cloudWrap cloud5" $top="300px" $left="60%" $width="36vw" $maxWidth="930px" $zIndex={5}>
         <CloudImg className="cloudImg cloudImg5" src="/cloud/구름1.png" alt="Cloud" />
       </CloudWrap>
 
       {/* Stem bubbles removed as requested */}
 
       {/* Redistributed 구름5 (fewer, spread along the stem) */}
-      <CloudWrap className="cloudWrap" $top="540px" $left="51%" $width="26vw" $maxWidth="760px" $zIndex={5} $driftDuration="6.8s">
+      <CloudWrap className="cloudWrap" $top="540px" $left="51%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="6.8s">
         <CloudImg className="cloudImg" src="/cloud/구름5.png" alt="Cloud" $floatDuration="2.4s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2000px" $left="49%" $width="24vw" $maxWidth="700px" $zIndex={5} $driftDuration="6.4s">
+      <CloudWrap className="cloudWrap" $top="2000px" $left="49%" $width="36vw" $maxWidth="1050px" $zIndex={5} $driftDuration="6.4s">
         <CloudImg className="cloudImg" src="/cloud/구름5.png" alt="Cloud" $floatDuration="2.2s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="3200px" $left="53%" $width="28vw" $maxWidth="820px" $zIndex={5} $driftDuration="6.9s">
+      <CloudWrap className="cloudWrap" $top="3200px" $left="53%" $width="42vw" $maxWidth="1230px" $zIndex={5} $driftDuration="6.9s">
         <CloudImg className="cloudImg" src="/cloud/구름5.png" alt="Cloud" $floatDuration="2.5s" />
       </CloudWrap>
 
       {/* Mid-scroll clouds (prop-driven timing) */}
-      <CloudWrap className="cloudWrap" $top="900px" $left="47%" $width="28vw" $maxWidth="760px" $zIndex={5} $driftDuration="7.5s">
+      <CloudWrap className="cloudWrap" $top="900px" $left="47%" $width="42vw" $maxWidth="1140px" $zIndex={5} $driftDuration="7.5s">
         <CloudImg className="cloudImg" src="/cloud/구름2.png" alt="Cloud" $floatDuration="3.0s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="1500px" $left="50%" $width="30vw" $maxWidth="820px" $zIndex={5} $driftDuration="7s">
+      <CloudWrap className="cloudWrap" $top="1500px" $left="50%" $width="45vw" $maxWidth="1230px" $zIndex={5} $driftDuration="7s">
         <CloudImg className="cloudImg" src="/cloud/구름1.png" alt="Cloud" $floatDuration="2.8s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2100px" $left="53%" $width="24vw" $maxWidth="700px" $zIndex={5} $driftDuration="8s">
+      <CloudWrap className="cloudWrap" $top="2100px" $left="53%" $width="36vw" $maxWidth="1050px" $zIndex={5} $driftDuration="8s">
         <CloudImg className="cloudImg" src="/cloud/구름2.png" alt="Cloud" $floatDuration="2.6s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2700px" $left="49%" $width="22vw" $maxWidth="620px" $zIndex={5} $driftDuration="6.5s">
+      <CloudWrap className="cloudWrap" $top="2700px" $left="49%" $width="33vw" $maxWidth="930px" $zIndex={5} $driftDuration="6.5s">
         <CloudImg className="cloudImg" src="/cloud/구름1.png" alt="Cloud" $floatDuration="2.4s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="3300px" $left="55%" $width="32vw" $maxWidth="900px" $zIndex={5} $driftDuration="8.5s">
+      <CloudWrap className="cloudWrap" $top="3300px" $left="55%" $width="48vw" $maxWidth="1350px" $zIndex={5} $driftDuration="8.5s">
         <CloudImg className="cloudImg" src="/cloud/구름2.png" alt="Cloud" $floatDuration="3.4s" />
       </CloudWrap>
 
       {/* Extra clouds (faster speed) */}
-      <CloudWrap className="cloudWrap" $top="3900px" $left="51%" $width="28vw" $maxWidth="820px" $zIndex={5} $driftDuration="6.8s">
+      <CloudWrap className="cloudWrap" $top="3900px" $left="51%" $width="42vw" $maxWidth="1230px" $zIndex={5} $driftDuration="6.8s">
         <CloudImg className="cloudImg" src="/cloud/구름3.png" alt="Cloud" $floatDuration="2.2s" />
       </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="4500px" $left="48%" $width="26vw" $maxWidth="760px" $zIndex={5} $driftDuration="6.2s">
+      <CloudWrap className="cloudWrap" $top="4500px" $left="48%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="6.2s">
         <CloudImg className="cloudImg" src="/cloud/구름4.png" alt="Cloud" $floatDuration="2.0s" />
       </CloudWrap>
 
       {/* Additional stem cloud */}
-      <CloudWrap className="cloudWrap" $top="5700px" $left="50%" $width="26vw" $maxWidth="760px" $zIndex={5} $driftDuration="5.6s">
+      <CloudWrap className="cloudWrap" $top="5700px" $left="50%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="5.6s">
         <CloudImg className="cloudImg" src="/cloud/구름3.png" alt="Cloud" $floatDuration="1.8s" />
       </CloudWrap>
 
