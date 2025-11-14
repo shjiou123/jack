@@ -29,11 +29,11 @@ export const GlobalStyles = createGlobalStyle`
   .cloud4 { --dx: 30px; --dy: 20px; animation: ${driftX} 12.5s cubic-bezier(.42,.0,.58,1) infinite alternate -0.6s; }
   .cloud5 { --dx: 22px; --dy: 14px; animation: ${driftX} 8.8s cubic-bezier(.42,.0,.58,1) infinite alternate -1.6s; }
 
-  .cloudImg1 { --rot: 0.4deg; --scale: 1.01; animation: ${floaty} 4.6s ease-in-out infinite alternate, ${breath} 11s ease-in-out infinite; }
-  .cloudImg2 { --rot: 0.3deg; --scale: 1.008; animation: ${floaty} 4.2s ease-in-out infinite alternate, ${breath} 10s ease-in-out infinite; }
-  .cloudImg3 { --rot: 0.35deg; --scale: 1.008; animation: ${floaty} 3.8s ease-in-out infinite alternate, ${breath} 9s ease-in-out infinite; }
-  .cloudImg4 { --rot: 0.5deg; --scale: 1.012; animation: ${floaty} 5.1s ease-in-out infinite alternate, ${breath} 12s ease-in-out infinite; }
-  .cloudImg5 { --rot: 0.28deg; --scale: 1.006; animation: ${floaty} 3.5s ease-in-out infinite alternate, ${breath} 8.5s ease-in-out infinite; }
+  .cloudImg1 { --rot: 0.4deg; --scale: 1.01; animation: ${floaty} 4.6s ease-in-out infinite alternate; }
+  .cloudImg2 { --rot: 0.3deg; --scale: 1.008; animation: ${floaty} 4.2s ease-in-out infinite alternate; }
+  .cloudImg3 { --rot: 0.35deg; --scale: 1.008; animation: ${floaty} 3.8s ease-in-out infinite alternate; }
+  .cloudImg4 { --rot: 0.5deg; --scale: 1.012; animation: ${floaty} 5.1s ease-in-out infinite alternate; }
+  .cloudImg5 { --rot: 0.28deg; --scale: 1.006; animation: ${floaty} 3.5s ease-in-out infinite alternate; }
 
   .doorHotspot:hover { outline: 2px dashed rgba(0,0,0,0.25); outline-offset: 2px; }
 `;
