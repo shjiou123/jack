@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { GlobalStyles, Main, HouseWrap, HouseImg, Bubble, BubbleImg, CloseButton, BurstWrap, BurstImg, BurstWrapBR, BurstWrapTR } from "./styles";
 ///위치: array constant 빼기
 
@@ -12,6 +12,39 @@ export default function PopupView() {
   const [burst3Popping, setBurst3Popping] = useState(false);
   const [burst3Visible, setBurst3Visible] = useState(true);
 
+  // Auto-pop clusters after ~3s (staggered slightly)
+  useEffect(() => {
+    if (!burstVisible) return;
+    const t = setTimeout(() => setBurstPopping(true), 3000);
+    return () => clearTimeout(t);
+  }, [burstVisible]);
+  useEffect(() => {
+    if (!burst2Visible) return;
+    const t = setTimeout(() => setBurst2Popping(true), 3400);
+    return () => clearTimeout(t);
+  }, [burst2Visible]);
+  useEffect(() => {
+    if (!burst3Visible) return;
+    const t = setTimeout(() => setBurst3Popping(true), 3800);
+    return () => clearTimeout(t);
+  }, [burst3Visible]);
+
+  // Safety fallback: hide even if animationend doesn’t fire
+  useEffect(() => {
+    if (!burstPopping || !burstVisible) return;
+    const t = setTimeout(() => setBurstVisible(false), 1600);
+    return () => clearTimeout(t);
+  }, [burstPopping, burstVisible]);
+  useEffect(() => {
+    if (!burst2Popping || !burst2Visible) return;
+    const t = setTimeout(() => setBurst2Visible(false), 1600);
+    return () => clearTimeout(t);
+  }, [burst2Popping, burst2Visible]);
+  useEffect(() => {
+    if (!burst3Popping || !burst3Visible) return;
+    const t = setTimeout(() => setBurst3Visible(false), 1600);
+    return () => clearTimeout(t);
+  }, [burst3Popping, burst3Visible]);
   const [bubbleState, setBubbleState] = useState({});
   const bubbleVisible = (id) => bubbleState[id]?.visible !== false;
   const handleBubbleClick = (id) => {
@@ -107,7 +140,7 @@ export default function PopupView() {
     <Main onPointerDown={handlePointerDown}>
       <GlobalStyles />
       <HouseWrap className="houseWrap">
-        <HouseImg src="/house1/house_1.png" alt="Mushroom House" />
+        <HouseImg src="/발_버블_화장실.png" alt="Bathroom Foot Bubbles" />
 
         {/* Top-left burst cluster anchored to screen ratio */}
         {burstVisible && (

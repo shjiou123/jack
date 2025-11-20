@@ -45,6 +45,11 @@ const burstPanRight = keyframes`
   0%   { transform: translateX(0) scale(var(--bScale, 1.06)); }
   100% { transform: translateX(var(--bPan, 5vw)) scale(var(--bScale, 1.06)); }
 `;
+/* Gentle fade-out for clusters */
+const softFade = keyframes`
+  0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.02); filter: blur(0.4px); }
+`;
 export const GlobalStyles = createGlobalStyle`
   .bubbleWrap { cursor: grab; touch-action: none; }
   .bubbleWrap:active { cursor: grabbing; }
@@ -63,15 +68,17 @@ export const Main = styled.main`
 
 export const HouseWrap = styled.div`
   position: fixed;
+  top: 0;
   left: 0;
-  bottom: 0;
   width: 100vw;
+  height: 100vh;
   z-index: 0;
 `;
 
 export const HouseImg = styled.img`
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 `;
 
@@ -131,8 +138,12 @@ export const BurstWrap = styled.div`
   /* Wrapper stays pinned; no wrapper drift to avoid exposing edges */
   animation: none;
   &.popping {
-    animation: ${popOut} 320ms cubic-bezier(.2,.8,.2,1) forwards;
+    animation: ${softFade} 1.5s ease-out forwards;
     pointer-events: none;
+  }
+  /* Avoid forward ref issues by targeting the img directly */
+  &.popping img {
+    animation: ${softFade} 1.5s ease-out forwards;
   }
 `;
 
@@ -155,6 +166,9 @@ export const BurstWrapBR = styled(BurstWrap)`
   bottom: 0;
   transform-origin: bottom right;
   animation: none;
+  &.popping img {
+    animation: ${softFade} 1.5s ease-out forwards;
+  }
 `;
 
 export const BurstWrapTR = styled(BurstWrap)`
@@ -166,6 +180,9 @@ export const BurstWrapTR = styled(BurstWrap)`
   transform-origin: top right;
   & ${BurstImg} {
     animation: ${burstPanRight} var(--bDurY, 26s) ease-in-out infinite alternate;
+  }
+  &.popping img {
+    animation: ${softFade} 1.5s ease-out forwards;
   }
 `;
 
