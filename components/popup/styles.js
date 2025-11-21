@@ -50,6 +50,11 @@ const softFade = keyframes`
   0%   { opacity: 1; transform: scale(1); filter: blur(0); }
   100% { opacity: 0; transform: scale(1.02); filter: blur(0.4px); }
 `;
+/* Pure opacity fade (no movement/scale) for perfectly in-place disappear */
+const fadeOutOnly = keyframes`
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+`;
 export const GlobalStyles = createGlobalStyle`
   .bubbleWrap { cursor: grab; touch-action: none; }
   .bubbleWrap:active { cursor: grabbing; }
@@ -121,6 +126,40 @@ export const CloseButton = styled.button`
   cursor: pointer;
 `;
 
+/* Speech balloon */
+const fadeIn = keyframes`
+  0% { opacity: 0; transform: translate(-50%, -46%) scale(0.98); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+`;
+
+export const BalloonWrap = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  pointer-events: auto;
+  animation: ${fadeIn} 220ms ease-out both;
+  width: 100vw;
+  max-width: 100vw;
+  max-height: 95vh;
+  &.closing {
+    animation: ${fadeOutOnly} 400ms ease-out forwards;
+    pointer-events: none;
+  }
+`;
+
+export const BalloonImg = styled.img`
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100vw;
+  max-height: 95vh;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+`;
+
 /* Top-left burst cluster */
 export const BurstWrap = styled.div`
   position: fixed;
@@ -138,12 +177,12 @@ export const BurstWrap = styled.div`
   /* Wrapper stays pinned; no wrapper drift to avoid exposing edges */
   animation: none;
   &.popping {
-    animation: ${softFade} 1.5s ease-out forwards;
+    animation: ${softFade} 0.5s ease-out forwards;
     pointer-events: none;
   }
   /* Avoid forward ref issues by targeting the img directly */
   &.popping img {
-    animation: ${softFade} 1.5s ease-out forwards;
+    animation: ${softFade} 0.5s ease-out forwards;
   }
 `;
 
@@ -167,7 +206,7 @@ export const BurstWrapBR = styled(BurstWrap)`
   transform-origin: bottom right;
   animation: none;
   &.popping img {
-    animation: ${softFade} 1.5s ease-out forwards;
+    animation: ${softFade} 0.5s ease-out forwards;
   }
 `;
 
@@ -182,7 +221,7 @@ export const BurstWrapTR = styled(BurstWrap)`
     animation: ${burstPanRight} var(--bDurY, 26s) ease-in-out infinite alternate;
   }
   &.popping img {
-    animation: ${softFade} 1.5s ease-out forwards;
+    animation: ${softFade} 0.5s ease-out forwards;
   }
 `;
 

@@ -21,6 +21,8 @@ export const GlobalStyles = createGlobalStyle`
   .cloudWrap { cursor: grab; touch-action: none; will-change: transform; }
   .cloudWrap:active { cursor: grabbing; }
   .cloudImg { user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
+  .jackWrap { cursor: default; touch-action: auto; }
+  .jackWrap:active { cursor: default; }
 
   /* Per-cloud parameters (top clouds) */
   .cloud1 { --dx: 26px; --dy: 16px; animation: ${driftX} 11s cubic-bezier(.42,.0,.58,1) infinite alternate; }
@@ -43,6 +45,10 @@ export const Main = styled.main`
   padding: 0;
   min-height: 100vh;
   background-color: #ffffff;
+  background-image: url('/배경.png');
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% auto;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
@@ -78,14 +84,18 @@ export const CloudImg = styled.img`
 
 export const JackWrap = styled.div`
   position: relative;
-  display: inline-block;
+  width: 100vw;
+  height: auto;
   z-index: 2;
 `;
 
 export const JackImg = styled.img`
   display: block;
-  width: 80vw;
+  width: 100%;
   height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  touch-action: auto;
 `;
 
 export const DoorHotspot = styled.a`

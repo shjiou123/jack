@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useEffect } from "react";
-import { GlobalStyles, Main, HouseWrap, HouseImg, Bubble, BubbleImg, CloseButton, BurstWrap, BurstImg, BurstWrapBR, BurstWrapTR } from "./styles";
+import { GlobalStyles, Main, HouseWrap, HouseImg, Bubble, BubbleImg, CloseButton, BurstWrap, BurstImg, BurstWrapBR, BurstWrapTR, BalloonWrap, BalloonImg } from "./styles";
 ///위치: array constant 빼기
 
 export default function PopupView() {
@@ -11,6 +11,8 @@ export default function PopupView() {
   const [burst2Visible, setBurst2Visible] = useState(true);
   const [burst3Popping, setBurst3Popping] = useState(false);
   const [burst3Visible, setBurst3Visible] = useState(true);
+  const [showBalloon, setShowBalloon] = useState(false);
+  const [balloonClosing, setBalloonClosing] = useState(false);
 
   // Auto-pop clusters after ~3s (staggered slightly)
   useEffect(() => {
@@ -139,7 +141,17 @@ export default function PopupView() {
   return (
     <Main onPointerDown={handlePointerDown}>
       <GlobalStyles />
-      <HouseWrap className="houseWrap">
+      <HouseWrap
+        className="houseWrap"
+        onClick={() => {
+          // If balloon is open, ignore background taps (balloon handles its own close)
+          if (showBalloon) return;
+          // Only allow balloon after clusters are gone
+          if (!burstVisible && !burst2Visible && !burst3Visible) {
+            setShowBalloon(true);
+          }
+        }}
+      >
         <HouseImg src="/발_버블_화장실.png" alt="Bathroom Foot Bubbles" />
 
         {/* Top-left burst cluster anchored to screen ratio */}
@@ -169,6 +181,24 @@ export default function PopupView() {
           >
             <BurstImg src="/bubble/버블뭉치3.png" alt="bubble-burst-cluster-3" style={{ animationDelay: '-1.6s' }} />
           </BurstWrapTR>
+        )}
+
+        {showBalloon && (
+          <BalloonWrap
+            onClick={(e) => {
+              e.stopPropagation(); // close only the balloon, do not re-trigger background open
+              setBalloonClosing(true);
+            }}
+            className={balloonClosing ? 'closing' : ''}
+            onAnimationEnd={() => {
+              if (balloonClosing) {
+                setBalloonClosing(false);
+                setShowBalloon(false);
+              }
+            }}
+          >
+            <BalloonImg src="/말풍선 형식.png" alt="speech-balloon" />
+          </BalloonWrap>
         )}
 
         {/* Render all bubbles (size doubled, count tripled) */}
