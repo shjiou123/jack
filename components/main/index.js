@@ -101,6 +101,12 @@ export default function MainPage() {
   useEffect(() => {
     const rootEl = mainRef.current;
     if (!rootEl) return;
+    if (typeof window === "undefined" || typeof window.IntersectionObserver === "undefined") {
+      // Fallback: ensure any paused states are resumed so nothing gets stuck
+      const els = rootEl.querySelectorAll(".cloudWrap, .cloudWrap img");
+      els.forEach((el) => { el.style.animationPlayState = "running"; });
+      return;
+    }
     const cloudEls = Array.from(rootEl.querySelectorAll(".cloudWrap"));
     if (cloudEls.length === 0) return;
     const io = new IntersectionObserver(
@@ -147,25 +153,45 @@ export default function MainPage() {
       {/* Stem bubbles removed as requested */}
 
       {/* Randomized stem clouds (5 types, ≥3 each) */}
-      {randomStemClouds.map((c, idx) => (
+      {randomStemClouds.map((c, idx) => {
+        const toNum = (v) => {
+          const n = typeof v === "string" ? parseFloat(v) : v;
+          return Number.isFinite(n) ? n : NaN;
+        };
+        const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+        const driftValRaw = toNum(c.drift);
+        const floatValRaw = toNum(c.floatDur);
+        const topPxRaw = toNum(c.topPx);
+        const leftPctRaw = toNum(c.leftPct);
+        const widthVwRaw = toNum(c.widthVw);
+        const maxWidthPxRaw = toNum(c.maxWidthPx);
+
+        const driftVal = Number.isFinite(driftValRaw) ? driftValRaw : 7.0;
+        const floatVal = Number.isFinite(floatValRaw) ? floatValRaw : 2.4;
+        const topPx = Number.isFinite(topPxRaw) ? Math.round(topPxRaw) : 1200;
+        const leftPct = Number.isFinite(leftPctRaw) ? clamp(leftPctRaw, 5, 95) : 50;
+        const widthVw = Number.isFinite(widthVwRaw) ? clamp(widthVwRaw, 8, 60) : 32;
+        const maxWidthPx = Number.isFinite(maxWidthPxRaw) ? clamp(maxWidthPxRaw, 200, 1600) : Math.round(widthVw * 30);
+        return (
         <CloudWrap
           key={`rcloud-${idx}`}
           className="cloudWrap"
-          $top={`${Math.round(c.topPx)}px`}
-          $left={`${c.leftPct}%`}
-          $width={`${c.widthVw}vw`}
-          $maxWidth={`${c.maxWidthPx}px`}
+          $top={`${topPx}px`}
+          $left={`${leftPct}%`}
+          $width={`${widthVw}vw`}
+          $maxWidth={`${maxWidthPx}px`}
           $zIndex={c.z || 5}
-          $driftDuration={`${c.drift.toFixed(1)}s`}
+          $driftDuration={`${driftVal.toFixed(1)}s`}
         >
           <CloudImg
             className="cloudImg"
             src={c.src}
             alt="Cloud"
-            $floatDuration={`${c.floatDur.toFixed(1)}s`}
+            $floatDuration={`${floatVal.toFixed(1)}s`}
           />
         </CloudWrap>
-      ))}
+        );
+      })}
 
       {/* Redistributed 구름5 (fewer, spread along the stem) */}
       <CloudWrap className="cloudWrap" $top="540px" $left="51%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="6.8s">
@@ -208,8 +234,6 @@ export default function MainPage() {
         <CloudImg className="cloudImg" src="/cloud/구름_3.png" alt="Cloud" $floatDuration="1.8s" />
       </CloudWrap>
 
-      {/* (removed) extra mid-page popup2 hotspot to avoid duplication */}
-
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
         <JackImg className="jackImg" src="/house_0.png" alt="Stem" />
@@ -251,9 +275,33 @@ export default function MainPage() {
         >
           POPUP2
         </DoorHotspot>
+        {/* Third popup hotspot - popup3 (blue marker) */}
+        <DoorHotspot
+          aria-label="새 팝업3 열기"
+          className="doorHotspot"
+          href="/popup3"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="새 팝업3 열기"
+          $top="78%"
+          $left="50%"
+          $width="15%"
+          $height="3%"
+          style={{
+            zIndex: 41,
+            background: "rgba(0,120,255,0.22)",
+            border: "3px solid rgba(0,120,255,0.9)",
+            color: "#0057cc",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 800,
+            letterSpacing: "0.04em"
+          }}
+        >
+          POPUP3
+        </DoorHotspot>
       </JackWrap>
     </Main>
   );
 }
-
-
