@@ -1,7 +1,7 @@
-import PopupView2 from "../components/popup2";
+import PopupView from "../components/popup2";
 
-export default function Popup2() {
-  return <PopupView2 />;
+export default function Popup2Page() {
+  return <PopupView />;
 }
 
 

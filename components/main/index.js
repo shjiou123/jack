@@ -2,6 +2,7 @@ import { useRef, useCallback, useState, useEffect } from "react";
 import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, DoorHotspot } from "./styles";
 
 export default function MainPage() {
+  const mainRef = useRef(null);
   const draggingElRef = useRef(null);
   const startRef = useRef({ x: 0, y: 0, left: 0, top: 0 });
 
@@ -96,8 +97,34 @@ export default function MainPage() {
     window.addEventListener("blur", handlePointerUp);
   }, [handlePointerMove, handlePointerUp]);
 
+  // Pause cloud animations when off-screen to reduce jank
+  useEffect(() => {
+    const rootEl = mainRef.current;
+    if (!rootEl) return;
+    const cloudEls = Array.from(rootEl.querySelectorAll(".cloudWrap"));
+    if (cloudEls.length === 0) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target;
+          const img = el.querySelector("img");
+          if (entry.isIntersecting) {
+            el.style.animationPlayState = "running";
+            if (img) img.style.animationPlayState = "running";
+          } else {
+            el.style.animationPlayState = "paused";
+            if (img) img.style.animationPlayState = "paused";
+          }
+        });
+      },
+      { root: rootEl, rootMargin: "200px 0px", threshold: 0.01 }
+    );
+    cloudEls.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [randomStemClouds.length]);
+
   return (
-    <Main onPointerDown={handlePointerDown}>
+    <Main ref={mainRef} onPointerDown={handlePointerDown}>
       <GlobalStyles />
 
       {/* Floating clouds (top group with fixed class timing) */}
@@ -181,6 +208,8 @@ export default function MainPage() {
         <CloudImg className="cloudImg" src="/cloud/구름_3.png" alt="Cloud" $floatDuration="1.8s" />
       </CloudWrap>
 
+      {/* (removed) extra mid-page popup2 hotspot to avoid duplication */}
+
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
         <JackImg className="jackImg" src="/house_0.png" alt="Stem" />
@@ -196,7 +225,7 @@ export default function MainPage() {
           $width="14.25%"
           $height="2.36%"
         />
-        {/* Second popup hotspot */}
+        {/* Second popup hotspot - moved to stem center for popup2 */}
         <DoorHotspot
           aria-label="새 팝업 열기"
           className="doorHotspot"
@@ -204,11 +233,24 @@ export default function MainPage() {
           target="_blank"
           rel="noopener noreferrer"
           title="새 팝업 열기"
-          $top="23.2%"
-          $left="43.8%"
-          $width="12.5%"
-          $height="2.36%"
-        />
+          $top="52%"
+          $left="50%"
+          $width="15%"
+          $height="3%"
+          style={{
+            zIndex: 40,
+            background: "rgba(255,0,0,0.25)",
+            border: "3px solid rgba(255,0,0,0.85)",
+            color: "#b00",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 800,
+            letterSpacing: "0.04em"
+          }}
+        >
+          POPUP2
+        </DoorHotspot>
       </JackWrap>
     </Main>
   );
