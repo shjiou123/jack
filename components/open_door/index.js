@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import styled from "styled-components";
 
 const OpenContainer = styled.main`
@@ -46,11 +47,13 @@ const EnterButton = styled.button`
   }
 `;
 
-export default function OpenDoorView({ onEnter }) {
+export default function OpenDoorView() {
+  const router = useRouter();
+
   return (
     <OpenContainer>
       <HouseImage src="/house2/house_2.png" alt="Open Door" />
-      <EnterButton onClick={onEnter}>
+      <EnterButton onClick={() => router.push("/main")}>
         입장하기
       </EnterButton>
     </OpenContainer>

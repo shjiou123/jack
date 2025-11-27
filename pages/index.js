@@ -1,5 +1,5 @@
-import MainPage from "../components/main";
+import OpenDoor from "../components/open_door";
 
 export default function Home() {
-  return <MainPage />;
+  return <OpenDoor />;
 }
