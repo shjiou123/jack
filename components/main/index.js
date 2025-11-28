@@ -236,7 +236,7 @@ export default function MainPage() {
 
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
-        <JackImg className="jackImg" src="/house_0.png" alt="Stem" />
+        <JackImg className="jackImg" src="/배경 줄기.png" alt="Stem" />
         <DoorHotspot
           aria-label="문 열기"
           className="doorHotspot"
@@ -283,8 +283,8 @@ export default function MainPage() {
           target="_blank"
           rel="noopener noreferrer"
           title="새 팝업3 열기"
-          $top="78%"
-          $left="50%"
+          $top="91.5%"
+          $left="54%"
           $width="15%"
           $height="3%"
           style={{
