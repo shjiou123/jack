@@ -1,3 +1,4 @@
+import { useRef, useCallback } from "react";
 import { useRouter } from "next/router";
 import styled, { keyframes } from "styled-components";
 
@@ -15,9 +16,9 @@ const OpenContainer = styled.main`
 `;
 
 const driftX = keyframes`
-  0%   { transform: translateX(-18px); }
-  50%  { transform: translateX(10px); }
-  100% { transform: translateX(22px); }
+  0%   { transform: translateX(-40px); }
+  50%  { transform: translateX(16px); }
+  100% { transform: translateX(40px); }
 `;
 
 const floatY = keyframes`
@@ -32,9 +33,14 @@ const CloudWrap = styled.div`
   left: ${(p) => p.$left};
   width: ${(p) => p.$width};
   max-width: 520px;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 2;
-  animation: ${driftX} ${(p) => p.$drift || 20}s ease-in-out infinite alternate;
+  cursor: grab;
+  &.dragging {
+    cursor: grabbing;
+  }
+  /* x축으로 더 자연스럽고 빠르게 이동 */
+  animation: ${driftX} ${(p) => p.$drift || 20}s cubic-bezier(.42,0,.58,1) infinite alternate;
   animation-delay: ${(p) => p.$delay || "0s"};
 `;
 
@@ -56,11 +62,12 @@ const HouseImage = styled.img`
 
 const EnterButton = styled.button`
   position: fixed;
-  bottom: 10%;
+  bottom: 7%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  border: 3px solid #000;
+  /* 완전히 투명한 클릭 영역 버튼 */
+  background: transparent;
+  border: 3px solid transparent;
   border-radius: 50px;
   padding: 16px 32px;
   font-size: 1.2rem;
@@ -68,12 +75,11 @@ const EnterButton = styled.button`
   color: #000;
   cursor: pointer;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: transform 0.2s ease, background 0.2s;
+  box-shadow: none;
+  transition: transform 0.15s ease;
 
   &:hover {
-    transform: translateX(-50%) scale(1.05);
-    background: #fff;
+    transform: translateX(-50%) scale(1.02);
   }
   &:active {
     transform: translateX(-50%) scale(0.98);
@@ -82,28 +88,126 @@ const EnterButton = styled.button`
 
 export default function OpenDoorView() {
   const router = useRouter();
+  const draggingElRef = useRef(null);
+  const containerRef = useRef(null);
+  const dragStateRef = useRef({
+    offsetX: 0,
+    offsetY: 0,
+    containerLeft: 0,
+    containerTop: 0,
+  });
+  const dragDeltaRef = useRef({ left: 0, top: 0 });
+  const dragRafIdRef = useRef(null);
 
-  // 입장 전 화면 주변에 떠다니는 구름들 (이미지당 2~3개, 크기/속도 제각각)
+  const handlePointerMove = useCallback((e) => {
+    const el = draggingElRef.current;
+    if (!el) return;
+    const { offsetX, offsetY, containerLeft, containerTop } = dragStateRef.current;
+
+    // 마우스가 잡고 있는 지점을 기준으로 새 위치를 계산
+    const desiredLeft = e.clientX - offsetX - containerLeft;
+    const desiredTop = e.clientY - offsetY - containerTop;
+
+    // rAF로 묶어서 프레임당 한 번만 DOM 업데이트
+    dragDeltaRef.current = { left: desiredLeft, top: desiredTop };
+    if (dragRafIdRef.current != null) return;
+
+    dragRafIdRef.current = window.requestAnimationFrame(() => {
+      const current = draggingElRef.current;
+      if (!current) {
+        dragRafIdRef.current = null;
+        return;
+      }
+      const { left, top } = dragDeltaRef.current;
+      // transform 대신 left/top을 직접 업데이트해서 자연스럽게 이동
+      current.style.left = `${left}px`;
+      current.style.top = `${top}px`;
+      current.style.transform = "";
+      dragRafIdRef.current = null;
+    });
+  }, []);
+
+  const resumeAnim = (el) => {
+    if (!el) return;
+    el.style.animationPlayState = "running";
+    const img = el.querySelector("img");
+    if (img) img.style.animationPlayState = "running";
+    el.classList.remove("dragging");
+  };
+
+  const handlePointerUp = useCallback(() => {
+    const el = draggingElRef.current;
+    if (el) {
+      resumeAnim(el);
+    }
+    draggingElRef.current = null;
+    if (dragRafIdRef.current != null) {
+      window.cancelAnimationFrame(dragRafIdRef.current);
+      dragRafIdRef.current = null;
+    }
+    window.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", handlePointerUp);
+    window.removeEventListener("blur", handlePointerUp);
+  }, [handlePointerMove]);
+
+  const handlePointerDown = useCallback(
+    (e) => {
+      const target = e.target.closest?.(".openCloud");
+      if (!target) return;
+      e.preventDefault();
+      try {
+        target.setPointerCapture && target.setPointerCapture(e.pointerId);
+      } catch {}
+      draggingElRef.current = target;
+
+      const container = containerRef.current;
+      if (!container) return;
+      const containerRect = container.getBoundingClientRect();
+      const rect = target.getBoundingClientRect();
+
+      // 포인터가 구름 안에서 어디를 잡고 있는지 기억
+      dragStateRef.current = {
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+        containerLeft: containerRect.left,
+        containerTop: containerRect.top,
+      };
+
+      target.style.animationPlayState = "paused";
+      const img = target.querySelector("img");
+      if (img) img.style.animationPlayState = "paused";
+      target.classList.add("dragging");
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
+      window.addEventListener("blur", handlePointerUp);
+    },
+    [handlePointerMove, handlePointerUp]
+  );
+
+  // 입장 전 화면 주변에 떠다니는 구름들 (이미지당 2~3개, 조금 더 작게/빠르게)
   const ambientClouds = [
     // 구름_1
-    { src: "/cloud/구름_1.png", top: "8%", left: "18%", width: "34%", drift: 22, float: 9, delayWrap: "-3s", delayImg: "-1.5s" },
-    { src: "/cloud/구름_1.png", top: "62%", left: "10%", width: "30%", drift: 18, float: 7.5, delayWrap: "-5s", delayImg: "-2s" },
+    { src: "/cloud/구름_1.png", top: "8%", left: "18%", width: "18%", drift: 12, float: 6.5, delayWrap: "-3s", delayImg: "-1.5s" },
+    { src: "/cloud/구름_1.png", top: "62%", left: "10%", width: "16%", drift: 10, float: 5.8, delayWrap: "-5s", delayImg: "-2s" },
     // 구름_2
-    { src: "/cloud/구름_2.png", top: "18%", left: "68%", width: "38%", drift: 24, float: 10, delayWrap: "-4s", delayImg: "-2.3s" },
-    { src: "/cloud/구름_2.png", top: "70%", left: "64%", width: "32%", drift: 19, float: 8, delayWrap: "-6s", delayImg: "-3s" },
+    { src: "/cloud/구름_2.png", top: "18%", left: "68%", width: "20%", drift: 13, float: 7.0, delayWrap: "-4s", delayImg: "-2.3s" },
+    { src: "/cloud/구름_2.png", top: "70%", left: "64%", width: "18%", drift: 11, float: 6.0, delayWrap: "-6s", delayImg: "-3s" },
     // 구름_4
-    { src: "/cloud/구름_4.png", top: "38%", left: "8%", width: "40%", drift: 26, float: 9.5, delayWrap: "-7s", delayImg: "-3.5s" },
-    { src: "/cloud/구름_4.png", top: "46%", left: "68%", width: "36%", drift: 21, float: 8.5, delayWrap: "-2s", delayImg: "-1s" },
+    { src: "/cloud/구름_4.png", top: "38%", left: "8%", width: "22%", drift: 14, float: 7.2, delayWrap: "-7s", delayImg: "-3.5s" },
+    { src: "/cloud/구름_4.png", top: "46%", left: "68%", width: "20%", drift: 12, float: 6.4, delayWrap: "-2s", delayImg: "-1s" },
     // 구름
-    { src: "/cloud/구름.png",  top: "28%", left: "40%", width: "42%", drift: 23, float: 11, delayWrap: "-5.5s", delayImg: "-2.7s" },
-    { src: "/cloud/구름.png",  top: "78%", left: "42%", width: "38%", drift: 20, float: 8.8, delayWrap: "-3.8s", delayImg: "-1.8s" },
+    { src: "/cloud/구름.png",  top: "28%", left: "40%", width: "22%", drift: 13, float: 7.5, delayWrap: "-5.5s", delayImg: "-2.7s" },
+    { src: "/cloud/구름.png",  top: "78%", left: "42%", width: "20%", drift: 11, float: 6.2, delayWrap: "-3.8s", delayImg: "-1.8s" },
   ];
 
   return (
-    <OpenContainer>
+    <OpenContainer ref={containerRef} onPointerDown={handlePointerDown}>
       {ambientClouds.map((c, idx) => (
         <CloudWrap
           key={idx}
+          className="openCloud"
           $top={c.top}
           $left={c.left}
           $width={c.width}
@@ -119,9 +223,7 @@ export default function OpenDoorView() {
         </CloudWrap>
       ))}
       <HouseImage src="/open.png" alt="Open Door" />
-      <EnterButton onClick={() => router.push("/main")}>
-        입장하기
-      </EnterButton>
+      <EnterButton aria-label="입장하기" onClick={() => router.push("/main")} />
     </OpenContainer>
   );
 }
