@@ -24,18 +24,18 @@ export const GlobalStyles = createGlobalStyle`
   .jackWrap { cursor: default; touch-action: auto; }
   .jackWrap:active { cursor: default; }
 
-  /* Per-cloud parameters (top clouds) */
-  .cloud1 { --dx: 26px; --dy: 16px; animation: ${driftX} 11s cubic-bezier(.42,.0,.58,1) infinite alternate; }
-  .cloud2 { --dx: 28px; --dy: 18px; animation: ${driftX} 10s cubic-bezier(.42,.0,.58,1) infinite alternate -1.2s; }
-  .cloud3 { --dx: 24px; --dy: 15px; animation: ${driftX} 9s  cubic-bezier(.42,.0,.58,1) infinite alternate -2.1s; }
-  .cloud4 { --dx: 30px; --dy: 20px; animation: ${driftX} 12.5s cubic-bezier(.42,.0,.58,1) infinite alternate -0.6s; }
-  .cloud5 { --dx: 22px; --dy: 14px; animation: ${driftX} 8.8s cubic-bezier(.42,.0,.58,1) infinite alternate -1.6s; }
+  /* Per-cloud parameters (top clouds) - 실제로 '움직이는 게 보이도록' 속도 조금 올리기 */
+  .cloud1 { --dx: 26px; --dy: 16px; animation: ${driftX} 18s ease-in-out infinite alternate; }
+  .cloud2 { --dx: 28px; --dy: 18px; animation: ${driftX} 20s ease-in-out infinite alternate -2s; }
+  .cloud3 { --dx: 24px; --dy: 15px; animation: ${driftX} 16s ease-in-out infinite alternate -3s; }
+  .cloud4 { --dx: 30px; --dy: 20px; animation: ${driftX} 22s ease-in-out infinite alternate -3.5s; }
+  .cloud5 { --dx: 22px; --dy: 14px; animation: ${driftX} 16s ease-in-out infinite alternate -1.5s; }
 
-  .cloudImg1 { --rot: 0.4deg; --scale: 1.01; animation: ${floaty} 4.6s ease-in-out infinite alternate; }
-  .cloudImg2 { --rot: 0.3deg; --scale: 1.008; animation: ${floaty} 4.2s ease-in-out infinite alternate; }
-  .cloudImg3 { --rot: 0.35deg; --scale: 1.008; animation: ${floaty} 3.8s ease-in-out infinite alternate; }
-  .cloudImg4 { --rot: 0.5deg; --scale: 1.012; animation: ${floaty} 5.1s ease-in-out infinite alternate; }
-  .cloudImg5 { --rot: 0.28deg; --scale: 1.006; animation: ${floaty} 3.5s ease-in-out infinite alternate; }
+  .cloudImg1 { --rot: 0.25deg; --scale: 1.004; animation: ${floaty} 8s ease-in-out infinite alternate; }
+  .cloudImg2 { --rot: 0.22deg; --scale: 1.003; animation: ${floaty} 7s ease-in-out infinite alternate; }
+  .cloudImg3 { --rot: 0.24deg; --scale: 1.003; animation: ${floaty} 7.5s ease-in-out infinite alternate; }
+  .cloudImg4 { --rot: 0.28deg; --scale: 1.005; animation: ${floaty} 9s ease-in-out infinite alternate; }
+  .cloudImg5 { --rot: 0.2deg;  --scale: 1.002; animation: ${floaty} 6.5s ease-in-out infinite alternate; }
 
   .doorHotspot:hover { outline: 2px dashed rgba(0,0,0,0.25); outline-offset: 2px; }
 `;

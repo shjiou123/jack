@@ -5,6 +5,8 @@ import { GlobalStyles, Main, HouseWrap, HouseImg, Bubble, BubbleImg, CloseButton
 export default function PopupView() {
   const draggingElRef = useRef(null);
   const startRef = useRef({ x: 0, y: 0, left: 0, top: 0 });
+  const dragRafIdRef = useRef(null);
+  const dragDeltaRef = useRef({ dx: 0, dy: 0 });
   const [burstPopping, setBurstPopping] = useState(false);
   const [burstVisible, setBurstVisible] = useState(true);
   const [burst2Popping, setBurst2Popping] = useState(false);
@@ -98,8 +100,21 @@ export default function PopupView() {
     if (!el) return;
     const dx = e.clientX - startRef.current.x;
     const dy = e.clientY - startRef.current.y;
-    el.style.left = `${startRef.current.left + dx}px`;
-    el.style.top = `${startRef.current.top + dy}px`;
+
+    dragDeltaRef.current = { dx, dy };
+    if (dragRafIdRef.current != null) return;
+
+    dragRafIdRef.current = window.requestAnimationFrame(() => {
+      const elNow = draggingElRef.current;
+      if (!elNow) {
+        dragRafIdRef.current = null;
+        return;
+      }
+      const { dx: rdx, dy: rdy } = dragDeltaRef.current;
+      // 드래그 중에는 transform만 변경해서 레이아웃 재계산을 줄인다
+      elNow.style.transform = `translate3d(${rdx}px, ${rdy}px, 0)`;
+      dragRafIdRef.current = null;
+    });
   }, []);
 
   const resumeAnim = (el) => {
@@ -111,8 +126,21 @@ export default function PopupView() {
 
   const handlePointerUp = useCallback(() => {
     const el = draggingElRef.current;
-    if (el) resumeAnim(el);
+    if (el) {
+      // 마지막 transform 값을 실제 left/top으로 한 번만 반영해서 위치를 고정
+      const { dx, dy } = dragDeltaRef.current;
+      const finalLeft = startRef.current.left + dx;
+      const finalTop = startRef.current.top + dy;
+      el.style.left = `${finalLeft}px`;
+      el.style.top = `${finalTop}px`;
+      el.style.transform = "";
+      resumeAnim(el);
+    }
     draggingElRef.current = null;
+    if (dragRafIdRef.current != null) {
+      window.cancelAnimationFrame(dragRafIdRef.current);
+      dragRafIdRef.current = null;
+    }
     window.removeEventListener("pointermove", handlePointerMove);
     window.removeEventListener("pointerup", handlePointerUp);
     window.removeEventListener("pointercancel", handlePointerUp);

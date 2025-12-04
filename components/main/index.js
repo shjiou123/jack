@@ -5,21 +5,24 @@ export default function MainPage() {
   const mainRef = useRef(null);
   const draggingElRef = useRef(null);
   const startRef = useRef({ x: 0, y: 0, left: 0, top: 0 });
+  const dragRafIdRef = useRef(null);
+  const dragDeltaRef = useRef({ dx: 0, dy: 0 });
+  const isDraggingRef = useRef(false);
 
   // Random clouds (5 images, at least 3 each) - generate on client after mount to avoid SSR hydration mismatch
   const [randomStemClouds, setRandomStemClouds] = useState([]);
   useEffect(() => {
     const rand = (min, max) => Math.random() * (max - min) + min;
+    // 요청하신 4종 구름만 랜덤으로 사용
     const cloudSrcs = [
       "/cloud/구름_1.png",
       "/cloud/구름_2.png",
-      "/cloud/구름_3.png",
       "/cloud/구름_4.png",
       "/cloud/구름.png",
     ];
     const clouds = [];
     cloudSrcs.forEach((src) => {
-      const count = 3 + Math.floor(Math.random() * 3); // 3~5 per type
+      const count = 2 + Math.floor(Math.random() * 2); // 2~3 per type
       for (let i = 0; i < count; i++) {
         // size buckets: small(30%), medium(50%), large(20%)
         const bucket = Math.random();
@@ -30,8 +33,9 @@ export default function MainPage() {
         // spread more widely across the viewport while staying mostly in stem band
         const leftPct = rand(20, 80);
         const topPx = rand(300, 6500);
-        const drift = rand(6.5, 13.5);
-        const floatDur = rand(1.8, 4.6);
+        // 실제로 움직임이 눈에 보이면서도 느릿하게 흐르도록
+        const drift = rand(12, 22);
+        const floatDur = rand(6, 10);
         clouds.push({
           src,
           widthVw,
@@ -52,13 +56,23 @@ export default function MainPage() {
     if (!el) return;
     const dx = e.clientX - startRef.current.x;
     const dy = e.clientY - startRef.current.y;
-    // Only allow dragging for clouds
-    {
-      const newLeft = startRef.current.left + dx;
-      const newTop = startRef.current.top + dy;
-      el.style.left = `${newLeft}px`;
-      el.style.top = `${newTop}px`;
-    }
+
+    // pointermove를 바로 DOM 업데이트하는 대신, rAF 한 프레임에 한 번만 반영
+    // 드래그 중에는 transform만 변경해서 레이아웃 재계산을 최소화
+    dragDeltaRef.current = { dx, dy };
+    if (dragRafIdRef.current != null) return;
+
+    dragRafIdRef.current = window.requestAnimationFrame(() => {
+      const elNow = draggingElRef.current;
+      if (!elNow) {
+        dragRafIdRef.current = null;
+        return;
+      }
+      const { dx: rdx, dy: rdy } = dragDeltaRef.current;
+      // 드래그 중에는 left/top은 건드리지 않고 transform만 조정
+      elNow.style.transform = `translate3d(${rdx}px, ${rdy}px, 0)`;
+      dragRafIdRef.current = null;
+    });
   }, []);
 
   const resumeAnim = (el) => {
@@ -68,10 +82,43 @@ export default function MainPage() {
     if (img) img.style.animationPlayState = "running";
   };
 
+  const pauseAllCloudAnims = () => {
+    const rootEl = mainRef.current;
+    if (!rootEl) return;
+    const els = rootEl.querySelectorAll(".cloudWrap, .cloudWrap img");
+    els.forEach((node) => {
+      node.style.animationPlayState = "paused";
+    });
+  };
+
+  const resumeAllCloudAnims = () => {
+    const rootEl = mainRef.current;
+    if (!rootEl) return;
+    const els = rootEl.querySelectorAll(".cloudWrap, .cloudWrap img");
+    els.forEach((node) => {
+      node.style.animationPlayState = "running";
+    });
+  };
+
   const handlePointerUp = useCallback(() => {
     const el = draggingElRef.current;
-    if (el) resumeAnim(el);
+    if (el) {
+      // 마지막 transform 값을 실제 left/top으로 한 번만 반영해서 위치를 고정
+      const { dx, dy } = dragDeltaRef.current;
+      const finalLeft = startRef.current.left + dx;
+      const finalTop = startRef.current.top + dy;
+      el.style.left = `${finalLeft}px`;
+      el.style.top = `${finalTop}px`;
+      el.style.transform = "";
+      resumeAnim(el);
+    }
     draggingElRef.current = null;
+    isDraggingRef.current = false;
+    resumeAllCloudAnims();
+    if (dragRafIdRef.current != null) {
+      window.cancelAnimationFrame(dragRafIdRef.current);
+      dragRafIdRef.current = null;
+    }
     window.removeEventListener("pointermove", handlePointerMove);
     window.removeEventListener("pointerup", handlePointerUp);
     window.removeEventListener("pointercancel", handlePointerUp);
@@ -84,6 +131,8 @@ export default function MainPage() {
     e.preventDefault();
     try { target.setPointerCapture && target.setPointerCapture(e.pointerId); } catch {}
     draggingElRef.current = target;
+    isDraggingRef.current = true;
+    pauseAllCloudAnims();
     const cs = window.getComputedStyle(target);
     const leftPx = parseFloat(cs.left) || target.offsetLeft || 0;
     const topPx = parseFloat(cs.top) || target.offsetTop || 0;
@@ -111,6 +160,8 @@ export default function MainPage() {
     if (cloudEls.length === 0) return;
     const io = new IntersectionObserver(
       (entries) => {
+        // 드래그 중에는 IO가 애니메이션 상태를 건드리지 않도록 막기
+        if (isDraggingRef.current) return;
         entries.forEach((entry) => {
           const el = entry.target;
           const img = el.querySelector("img");
@@ -236,7 +287,7 @@ export default function MainPage() {
 
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
-        <JackImg className="jackImg" src="/배경 줄기.png" alt="Stem" />
+        <JackImg className="jackImg" src="/background_b.png" alt="Stem" />
         <DoorHotspot
           aria-label="문 열기"
           className="doorHotspot"
