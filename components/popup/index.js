@@ -14,7 +14,8 @@ export default function PopupView() {
   const [burst3Popping, setBurst3Popping] = useState(false);
   const [burst3Visible, setBurst3Visible] = useState(true);
   const [showBalloon, setShowBalloon] = useState(false);
-  const [balloonClosing, setBalloonClosing] = useState(false);
+  const [balloonClosing, setBalloonClosing] = useState(false); // 남겨두지만 더 이상 사용하진 않음
+  const [footFrame, setFootFrame] = useState(0);
 
   // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
   useEffect(() => {
@@ -107,6 +108,17 @@ export default function PopupView() {
   const set2 = makeSet(baseBubbles, 1, 7, -6, 0.4, 0.3);
   const set3 = makeSet(baseBubbles, 2, -6, 7, 0.8, 0.6);
   const allBubbles = [...set1, ...set2, ...set3];
+
+  // Foot story 이미지 시퀀스 (말풍선 이미지를 대체)
+  const footFrames = [
+    "/foot/foot_1.png",
+    "/foot/foot_2.png",
+    "/foot/foot_3.png",
+    "/foot/foot_4.png",
+    "/foot/foot_5.png",
+    "/foot/foot_6.png",
+    "/foot.png", // 맨 뒷장: 전체 화면용 이미지
+  ];
 
   const handlePointerMove = useCallback((e) => {
     const el = draggingElRef.current;
@@ -227,18 +239,22 @@ export default function PopupView() {
         {showBalloon && (
           <BalloonWrap
             onClick={(e) => {
-              e.stopPropagation(); // close only the balloon, do not re-trigger background open
-              setBalloonClosing(true);
-            }}
-            className={balloonClosing ? 'closing' : ''}
-            onAnimationEnd={() => {
-              if (balloonClosing) {
-                setBalloonClosing(false);
-                setShowBalloon(false);
-              }
+              e.stopPropagation();
+              setFootFrame((prev) => {
+                const next = prev + 1;
+                if (next >= footFrames.length) {
+                  // 마지막까지 본 뒤에는 말풍선 닫기
+                  setShowBalloon(false);
+                  return prev;
+                }
+                return next;
+              });
             }}
           >
-            <BalloonImg src="/말풍선 형식.png" alt="speech-balloon" />
+            <BalloonImg
+              src={footFrames[footFrame]}
+              alt={`foot-story-${footFrame + 1}`}
+            />
           </BalloonWrap>
         )}
 

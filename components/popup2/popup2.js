@@ -1,4 +1,4 @@
-import PopupView2 from "../components/popup2";
+import PopupView2 from ".";
 
 export default function Popup2() {
   return <PopupView2 />;

@@ -192,13 +192,14 @@ export default function OpenDoorView() {
     { src: "/cloud/구름_1.png", top: "60%", left: "8%", width: "16%", drift: 10, float: 5.8, delayWrap: "-5s", delayImg: "-2s" },
     // 구름_2
     { src: "/cloud/구름_2.png", top: "16%", left: "70%", width: "20%", drift: 13, float: 7.0, delayWrap: "-4s", delayImg: "-2.3s" },
-    { src: "/cloud/구름_2.png", top: "72%", left: "66%", width: "18%", drift: 11, float: 6.0, delayWrap: "-6s", delayImg: "-3s" },
+    // 하단 중앙의 클릭 버튼을 가리지 않도록, 하단 구름들은 좌우로 치우치게 배치
+    { src: "/cloud/구름_2.png", top: "72%", left: "82%", width: "18%", drift: 11, float: 6.0, delayWrap: "-6s", delayImg: "-3s" },
     // 구름_4
     { src: "/cloud/구름_4.png", top: "40%", left: "6%", width: "22%", drift: 14, float: 7.2, delayWrap: "-7s", delayImg: "-3.5s" },
     { src: "/cloud/구름_4.png", top: "44%", left: "70%", width: "20%", drift: 12, float: 6.4, delayWrap: "-2s", delayImg: "-1s" },
     // 구름
     { src: "/cloud/구름.png", top: "26%", left: "40%", width: "22%", drift: 13, float: 7.5, delayWrap: "-5.5s", delayImg: "-2.7s" },
-    { src: "/cloud/구름.png", top: "80%", left: "42%", width: "20%", drift: 11, float: 6.2, delayWrap: "-3.8s", delayImg: "-1.8s" },
+    { src: "/cloud/구름.png", top: "80%", left: "14%", width: "20%", drift: 11, float: 6.2, delayWrap: "-3.8s", delayImg: "-1.8s" },
   ];
 
   return (
