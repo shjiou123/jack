@@ -33,14 +33,14 @@ const CloudWrap = styled.div`
   left: ${(p) => p.$left};
   width: ${(p) => p.$width};
   max-width: 520px;
+  /* 구름을 드래그할 수 있도록 클릭 가능하게 */
   pointer-events: auto;
   z-index: 2;
   cursor: grab;
   &.dragging {
     cursor: grabbing;
   }
-  /* x축으로 더 자연스럽고 빠르게 이동 */
-  animation: ${driftX} ${(p) => p.$drift || 20}s cubic-bezier(.42,0,.58,1) infinite alternate;
+  animation: ${driftX} ${(p) => p.$drift || 20}s cubic-bezier(.42, 0, .58, 1) infinite alternate;
   animation-delay: ${(p) => p.$delay || "0s"};
 `;
 
@@ -65,7 +65,6 @@ const EnterButton = styled.button`
   bottom: 7%;
   left: 50%;
   transform: translateX(-50%);
-  /* 완전히 투명한 클릭 영역 버튼 */
   background: transparent;
   border: 3px solid transparent;
   border-radius: 50px;
@@ -88,28 +87,27 @@ const EnterButton = styled.button`
 
 export default function OpenDoorView() {
   const router = useRouter();
-  const draggingElRef = useRef(null);
   const containerRef = useRef(null);
+  const draggingElRef = useRef(null);
   const dragStateRef = useRef({
     offsetX: 0,
     offsetY: 0,
     containerLeft: 0,
     containerTop: 0,
   });
-  const dragDeltaRef = useRef({ left: 0, top: 0 });
+  const dragPosRef = useRef({ left: 0, top: 0 });
   const dragRafIdRef = useRef(null);
 
   const handlePointerMove = useCallback((e) => {
     const el = draggingElRef.current;
     if (!el) return;
-    const { offsetX, offsetY, containerLeft, containerTop } = dragStateRef.current;
 
-    // 마우스가 잡고 있는 지점을 기준으로 새 위치를 계산
+    const { offsetX, offsetY, containerLeft, containerTop } = dragStateRef.current;
     const desiredLeft = e.clientX - offsetX - containerLeft;
     const desiredTop = e.clientY - offsetY - containerTop;
 
     // rAF로 묶어서 프레임당 한 번만 DOM 업데이트
-    dragDeltaRef.current = { left: desiredLeft, top: desiredTop };
+    dragPosRef.current = { left: desiredLeft, top: desiredTop };
     if (dragRafIdRef.current != null) return;
 
     dragRafIdRef.current = window.requestAnimationFrame(() => {
@@ -118,11 +116,9 @@ export default function OpenDoorView() {
         dragRafIdRef.current = null;
         return;
       }
-      const { left, top } = dragDeltaRef.current;
-      // transform 대신 left/top을 직접 업데이트해서 자연스럽게 이동
+      const { left, top } = dragPosRef.current;
       current.style.left = `${left}px`;
       current.style.top = `${top}px`;
-      current.style.transform = "";
       dragRafIdRef.current = null;
     });
   }, []);
@@ -156,17 +152,18 @@ export default function OpenDoorView() {
       const target = e.target.closest?.(".openCloud");
       if (!target) return;
       e.preventDefault();
+
       try {
         target.setPointerCapture && target.setPointerCapture(e.pointerId);
       } catch {}
-      draggingElRef.current = target;
 
       const container = containerRef.current;
       if (!container) return;
+
       const containerRect = container.getBoundingClientRect();
       const rect = target.getBoundingClientRect();
 
-      // 포인터가 구름 안에서 어디를 잡고 있는지 기억
+      draggingElRef.current = target;
       dragStateRef.current = {
         offsetX: e.clientX - rect.left,
         offsetY: e.clientY - rect.top,
@@ -174,10 +171,12 @@ export default function OpenDoorView() {
         containerTop: containerRect.top,
       };
 
+      // 드래그 중에는 애니메이션 잠시 정지
       target.style.animationPlayState = "paused";
       const img = target.querySelector("img");
       if (img) img.style.animationPlayState = "paused";
       target.classList.add("dragging");
+
       window.addEventListener("pointermove", handlePointerMove);
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);
@@ -189,17 +188,17 @@ export default function OpenDoorView() {
   // 입장 전 화면 주변에 떠다니는 구름들 (이미지당 2~3개, 조금 더 작게/빠르게)
   const ambientClouds = [
     // 구름_1
-    { src: "/cloud/구름_1.png", top: "8%", left: "18%", width: "18%", drift: 12, float: 6.5, delayWrap: "-3s", delayImg: "-1.5s" },
-    { src: "/cloud/구름_1.png", top: "62%", left: "10%", width: "16%", drift: 10, float: 5.8, delayWrap: "-5s", delayImg: "-2s" },
+    { src: "/cloud/구름_1.png", top: "10%", left: "20%", width: "18%", drift: 12, float: 6.5, delayWrap: "-3s", delayImg: "-1.5s" },
+    { src: "/cloud/구름_1.png", top: "60%", left: "8%", width: "16%", drift: 10, float: 5.8, delayWrap: "-5s", delayImg: "-2s" },
     // 구름_2
-    { src: "/cloud/구름_2.png", top: "18%", left: "68%", width: "20%", drift: 13, float: 7.0, delayWrap: "-4s", delayImg: "-2.3s" },
-    { src: "/cloud/구름_2.png", top: "70%", left: "64%", width: "18%", drift: 11, float: 6.0, delayWrap: "-6s", delayImg: "-3s" },
+    { src: "/cloud/구름_2.png", top: "16%", left: "70%", width: "20%", drift: 13, float: 7.0, delayWrap: "-4s", delayImg: "-2.3s" },
+    { src: "/cloud/구름_2.png", top: "72%", left: "66%", width: "18%", drift: 11, float: 6.0, delayWrap: "-6s", delayImg: "-3s" },
     // 구름_4
-    { src: "/cloud/구름_4.png", top: "38%", left: "8%", width: "22%", drift: 14, float: 7.2, delayWrap: "-7s", delayImg: "-3.5s" },
-    { src: "/cloud/구름_4.png", top: "46%", left: "68%", width: "20%", drift: 12, float: 6.4, delayWrap: "-2s", delayImg: "-1s" },
+    { src: "/cloud/구름_4.png", top: "40%", left: "6%", width: "22%", drift: 14, float: 7.2, delayWrap: "-7s", delayImg: "-3.5s" },
+    { src: "/cloud/구름_4.png", top: "44%", left: "70%", width: "20%", drift: 12, float: 6.4, delayWrap: "-2s", delayImg: "-1s" },
     // 구름
-    { src: "/cloud/구름.png",  top: "28%", left: "40%", width: "22%", drift: 13, float: 7.5, delayWrap: "-5.5s", delayImg: "-2.7s" },
-    { src: "/cloud/구름.png",  top: "78%", left: "42%", width: "20%", drift: 11, float: 6.2, delayWrap: "-3.8s", delayImg: "-1.8s" },
+    { src: "/cloud/구름.png", top: "26%", left: "40%", width: "22%", drift: 13, float: 7.5, delayWrap: "-5.5s", delayImg: "-2.7s" },
+    { src: "/cloud/구름.png", top: "80%", left: "42%", width: "20%", drift: 11, float: 6.2, delayWrap: "-3.8s", delayImg: "-1.8s" },
   ];
 
   return (

@@ -18,6 +18,45 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* [1] 기본 스크롤바 제거 (WebKit) */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* [1-추가] 파이어폭스 등에서 스크롤바 숨기기 */
+html {
+  scrollbar-width: none;
+}
+
+/* [2,3] 커스텀 구름 스크롤바 */
+.custom-scroll-track {
+  position: fixed;
+  top: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 60vh;
+  background: #c4c4c4; /* 조금 더 진한 회색 */
+  border-radius: 10px;
+  z-index: 9999;
+}
+
+.custom-scroll-thumb {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: auto;
+  cursor: grab;
+  z-index: 10000;
+  transition: top 0.12s ease-out;
+}
+
+.custom-scroll-thumb.dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

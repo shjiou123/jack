@@ -51,6 +51,8 @@ export default function MainPage() {
     setRandomStemClouds(clouds);
   }, []);
 
+  // (minimap / 커스텀 스크롤바 관련 사이드 이펙트는 제거됨)
+
   const handlePointerMove = useCallback((e) => {
     const el = draggingElRef.current;
     if (!el) return;
@@ -146,6 +148,54 @@ export default function MainPage() {
     window.addEventListener("blur", handlePointerUp);
   }, [handlePointerMove, handlePointerUp]);
 
+  // 미니맵 드래그로 실제 스크롤을 이동
+  const handleMiniPointerMove = useCallback((e) => {
+    if (!isDraggingMiniRef.current || !mainRef.current) return;
+    const el = mainRef.current;
+    const { barHeight } = minimapStateRef.current;
+    const containerTop = (window.innerHeight - MINIMAP_HEIGHT) / 2;
+    let barTop = e.clientY - miniDragOffsetRef.current - containerTop;
+    const maxTop = MINIMAP_HEIGHT - barHeight;
+    barTop = Math.max(0, Math.min(barTop, maxTop));
+
+    const next = { barTop, barHeight };
+    setMinimap(next);
+    minimapStateRef.current = next;
+
+    const scrollHeight = el.scrollHeight;
+    const viewportHeight = el.clientHeight;
+    if (scrollHeight <= viewportHeight) return;
+    const ratio = barTop / maxTop;
+    const newScrollTop = ratio * (scrollHeight - viewportHeight);
+    el.scrollTo({ top: newScrollTop, behavior: "auto" });
+  }, []);
+
+  const handleMiniPointerUp = useCallback(() => {
+    isDraggingMiniRef.current = false;
+    const barEl = document.querySelector(".minimap-bar");
+    if (barEl) barEl.classList.remove("dragging");
+    window.removeEventListener("pointermove", handleMiniPointerMove);
+    window.removeEventListener("pointerup", handleMiniPointerUp);
+    window.removeEventListener("pointercancel", handleMiniPointerUp);
+    window.removeEventListener("blur", handleMiniPointerUp);
+  }, []);
+
+  const handleMiniPointerDown = useCallback(
+    (e) => {
+      const barEl = e.target.closest?.(".minimap-bar");
+      if (!barEl || !mainRef.current) return;
+      e.preventDefault();
+      isDraggingMiniRef.current = true;
+      miniDragOffsetRef.current = e.clientY - barEl.getBoundingClientRect().top;
+      barEl.classList.add("dragging");
+      window.addEventListener("pointermove", handleMiniPointerMove);
+      window.addEventListener("pointerup", handleMiniPointerUp);
+      window.addEventListener("pointercancel", handleMiniPointerUp);
+      window.addEventListener("blur", handleMiniPointerUp);
+    },
+    [handleMiniPointerMove, handleMiniPointerUp]
+  );
+
   // Pause cloud animations when off-screen to reduce jank
   useEffect(() => {
     const rootEl = mainRef.current;
@@ -153,7 +203,9 @@ export default function MainPage() {
     if (typeof window === "undefined" || typeof window.IntersectionObserver === "undefined") {
       // Fallback: ensure any paused states are resumed so nothing gets stuck
       const els = rootEl.querySelectorAll(".cloudWrap, .cloudWrap img");
-      els.forEach((el) => { el.style.animationPlayState = "running"; });
+      els.forEach((el) => {
+        el.style.animationPlayState = "running";
+      });
       return;
     }
     const cloudEls = Array.from(rootEl.querySelectorAll(".cloudWrap"));

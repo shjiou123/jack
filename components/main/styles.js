@@ -49,7 +49,8 @@ export const Main = styled.main`
   background-repeat: no-repeat;
   background-position: center top;
   background-size: 100% auto;
-  overflow-y: auto;
+  /* 페이지 전체 스크롤은 window/body에서 처리 (커스텀 스크롤바용) */
+  overflow-y: visible;
   overflow-x: hidden;
   position: relative;
   display: flex;
@@ -111,4 +112,35 @@ export const DoorHotspot = styled.a`
   height: ${(p) => p.$height};
 `;
 
+/* 화면 오른쪽 중앙에 고정되는 organic side-bar (이미지 X) */
+export const SidebarBar = styled.nav`
+  position: fixed;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  width: 45px;
+  height: 70vh;
+  min-height: 280px;
+  max-height: 560px;
+  background: #000; /* 검정 배경 */
+  /* 유기적으로 울퉁불퉁한 느낌을 주는 비대칭 radius (가로/세로 다르게) */
+  border-radius: 36px 14px 40px 18px / 80% 55% 70% 60%;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+  z-index: 9999; /* 항상 다른 요소 위에 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: 10px 6px;
+  pointer-events: auto;
+`;
 
+export const SidebarNumber = styled.span`
+  display: block;
+  font-size: 14px;
+  line-height: 1;
+  color: #cfcfcf;
+  opacity: 0.7;
+  padding-left: 4px; /* 막대 왼쪽 안쪽에 붙도록 */
+  user-select: none;
+`;
