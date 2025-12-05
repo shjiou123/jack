@@ -99,6 +99,17 @@ export const JackImg = styled.img`
   touch-action: auto;
 `;
 
+export const JackImgOverlay = styled(JackImg)`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  /* 같은 위치에서 색만 자연스럽게 바뀌도록 투명도만 cross-fade */
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transition: opacity 1.2s ease-in-out;
+`;
+
 export const DoorHotspot = styled.a`
   position: absolute;
   transform: translate(-50%, -50%);

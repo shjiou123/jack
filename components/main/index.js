@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useEffect } from "react";
-import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, DoorHotspot } from "./styles";
+import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, JackImgOverlay, DoorHotspot } from "./styles";
 
 export default function MainPage() {
   const mainRef = useRef(null);
@@ -8,6 +8,7 @@ export default function MainPage() {
   const dragRafIdRef = useRef(null);
   const dragDeltaRef = useRef({ dx: 0, dy: 0 });
   const isDraggingRef = useRef(false);
+  const [hasVisitedPopup, setHasVisitedPopup] = useState(false);
 
   // Random clouds (5 images, at least 3 each) - generate on client after mount to avoid SSR hydration mismatch
   const [randomStemClouds, setRandomStemClouds] = useState([]);
@@ -49,6 +50,29 @@ export default function MainPage() {
       }
     });
     setRandomStemClouds(clouds);
+  }, []);
+
+  // 팝업을 다녀왔을 때만 (같은 세션/탭에서) 배경 이미지를 교체.
+  // 새로고침하면 항상 background_b.png 로 다시 시작하도록, 마운트 시 플래그를 지운다.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // 새로고침된 뒤에는 항상 초기 상태로
+    try {
+      window.localStorage.removeItem("visitedPopup");
+    } catch {}
+    setHasVisitedPopup(false);
+
+    const handleStorage = (e) => {
+      if (e.key === "visitedPopup" && e.newValue === "true") {
+        setHasVisitedPopup(true);
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   // (minimap / 커스텀 스크롤바 관련 사이드 이펙트는 제거됨)
@@ -339,7 +363,15 @@ export default function MainPage() {
 
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
+        {/* 기본 줄기 이미지 (항상 보임) */}
         <JackImg className="jackImg" src="/background_b.png" alt="Stem" />
+        {/* 팝업 방문 후 위에 부드럽게 페이드인 되는 이미지 */}
+        <JackImgOverlay
+          className="jackImg"
+          src="/background.png"
+          alt="Stem after popup"
+          $visible={hasVisitedPopup}
+        />
         <DoorHotspot
           aria-label="문 열기"
           className="doorHotspot"

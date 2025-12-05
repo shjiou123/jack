@@ -14,6 +14,19 @@ export default function PopupView() {
   const [burst3Popping, setBurst3Popping] = useState(false);
   const [burst3Visible, setBurst3Visible] = useState(true);
 
+  // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      try {
+        window.localStorage.setItem("visitedPopup", "true");
+      } catch {}
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   // Auto-pop clusters after ~3s (staggered slightly)
   useEffect(() => {
     if (!burstVisible) return;

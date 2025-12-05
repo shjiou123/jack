@@ -16,6 +16,19 @@ export default function PopupView() {
   const [showBalloon, setShowBalloon] = useState(false);
   const [balloonClosing, setBalloonClosing] = useState(false);
 
+  // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      try {
+        window.localStorage.setItem("visitedPopup", "true");
+      } catch {}
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   // Auto-pop clusters after ~3s (staggered slightly)
   useEffect(() => {
     if (!burstVisible) return;
@@ -180,7 +193,7 @@ export default function PopupView() {
           }
         }}
       >
-        <HouseImg src="/발_버블_화장실.png" alt="Bathroom Foot Bubbles" />
+        <HouseImg src="/foot.png" alt="Bathroom Foot Bubbles" />
 
         {/* Top-left burst cluster anchored to screen ratio */}
         {burstVisible && (
