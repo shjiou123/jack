@@ -64,6 +64,8 @@ export default function PopupView() {
     return () => clearTimeout(t);
   }, [burst3Popping, burst3Visible]);
   const [bubbleState, setBubbleState] = useState({});
+  const [allBubbles, setAllBubbles] = useState([]);
+
   const bubbleVisible = (id) => bubbleState[id]?.visible !== false;
   const handleBubbleClick = (id) => {
     setBubbleState((s) => ({ ...s, [id]: { ...(s[id] || {}), popping: true } }));
@@ -72,43 +74,55 @@ export default function PopupView() {
     setBubbleState((s) => ({ ...s, [id]: { ...(s[id] || {}), visible: false } }));
   };
 
-  // Curated base bubble layout (sizes already doubled)
-  // 이미지: 영어 파일명 3종 (bubble_1 / bubble_2 / bubble_3)만 사용
-  const baseBubbles = [
-    { id:'b1',  top:18, left:21, width:22, img:'/bubble/bubble_1.png', dx:'26px', dy:'16px', dur:'13.8s', float:'5.1s', dWrap:'-0.8s', dImg:'-0.6s' },
-    { id:'b2',  top:24, left:57, width:16, img:'/bubble/bubble_2.png', dx:'28px', dy:'18px', dur:'11.4s', float:'3.9s', dWrap:'-1.3s', dImg:'-0.9s' },
-    { id:'b3',  top:38, left:34, width:19, img:'/bubble/bubble_3.png', dx:'24px', dy:'16px', dur:'12.8s', float:'4.8s', dWrap:'-0.4s', dImg:'-0.2s' },
-    { id:'b4',  top:56, left:72, width:17, img:'/bubble/bubble_2.png', dx:'30px', dy:'20px', dur:'12.0s', float:'4.2s', dWrap:'-1.0s', dImg:'-0.6s' },
-    { id:'b5',  top:64, left:42, width:24, img:'/bubble/bubble_1.png', dx:'28px', dy:'18px', dur:'15.8s', float:'5.7s', dWrap:'-1.6s', dImg:'-1.0s' },
-    { id:'b6',  top:76, left:16, width:18, img:'/bubble/bubble_3.png', dx:'32px', dy:'22px', dur:'12.9s', float:'4.5s', dWrap:'-0.7s', dImg:'-0.4s' },
-    { id:'b7',  top:30, left:78, width:12, img:'/bubble/bubble_1.png', dx:'22px', dy:'14px', dur:'11.1s', float:'3.8s', dWrap:'-0.3s', dImg:'-0.2s' },
-    { id:'b8',  top:70, left:28, width:26, img:'/bubble/bubble_1.png', dx:'30px', dy:'20px', dur:'16.8s', float:'6.3s', dWrap:'-1.8s', dImg:'-1.0s' },
-    { id:'b9',  top:44, left:16, width:14, img:'/bubble/bubble_2.png', dx:'24px', dy:'16px', dur:'12.3s', float:'4.5s', dWrap:'-0.5s', dImg:'-0.3s' },
-    { id:'b10', top:22, left:36, width:14, img:'/bubble/bubble_1.png', dx:'24px', dy:'16px', dur:'12.0s', float:'4.4s', dWrap:'-0.9s', dImg:'-0.6s' },
-    { id:'b11', top:52, left:18, width:20, img:'/bubble/bubble_3.png', dx:'28px', dy:'18px', dur:'14.6s', float:'5.6s', dWrap:'-1.4s', dImg:'-0.8s' },
-    { id:'b12', top:34, left:68, width:18, img:'/bubble/bubble_2.png', dx:'26px', dy:'18px', dur:'13.2s', float:'4.9s', dWrap:'-0.7s', dImg:'-0.5s' },
-    { id:'b13', top:62, left:64, width:22, img:'/bubble/bubble_1.png', dx:'30px', dy:'20px', dur:'15.0s', float:'5.8s', dWrap:'-1.1s', dImg:'-0.9s' },
-    { id:'b14', top:28, left:12, width:10, img:'/bubble/bubble_2.png', dx:'20px', dy:'14px', dur:'10.2s', float:'3.6s', dWrap:'-0.2s', dImg:'-0.1s' },
-    { id:'b15', top:82, left:36, width:16, img:'/bubble/bubble_3.png', dx:'22px', dy:'16px', dur:'12.7s', float:'4.7s', dWrap:'-0.6s', dImg:'-0.3s' },
-    { id:'b16', top:48, left:82, width:13, img:'/bubble/bubble_1.png', dx:'22px', dy:'16px', dur:'11.5s', float:'4.1s', dWrap:'-1.5s', dImg:'-0.9s' },
-    { id:'b17', top:58, left:48, width:15, img:'/bubble/bubble_2.png', dx:'24px', dy:'16px', dur:'12.9s', float:'4.6s', dWrap:'-0.8s', dImg:'-0.5s' },
-    { id:'b18', top:36, left:48, width:9,  img:'/bubble/bubble_1.png', dx:'18px', dy:'12px', dur:'9.6s',  float:'3.2s', dWrap:'-0.4s', dImg:'-0.2s' },
-  ];
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-  const makeSet = (arr, offsetIndex, topOff, leftOff, delayOffWrap, delayOffImg) =>
-    arr.map((b, i) => ({
-      ...b,
-      id: `b${offsetIndex * arr.length + (i + 1)}`,
-      top: clamp(b.top + topOff, 8, 92),
-      left: clamp(b.left + leftOff, 8, 92),
-      width: Math.min(b.width * 2, 52),
-      dWrap: `calc(${b.dWrap || '0s'} - ${delayOffWrap}s)`,
-      dImg: `calc(${b.dImg || '0s'} - ${delayOffImg}s)`,
-    }));
-  const set1 = makeSet(baseBubbles, 0, 0, 0, 0, 0);
-  const set2 = makeSet(baseBubbles, 1, 7, -6, 0.4, 0.3);
-  const set3 = makeSet(baseBubbles, 2, -6, 7, 0.8, 0.6);
-  const allBubbles = [...set1, ...set2, ...set3];
+  // 버블들: 화면 전체에 랜덤 배치, 새로고침마다 새 위치/크기/속도
+  useEffect(() => {
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const imgs = [
+      "/bubble/bubble_1.png",
+      "/bubble/bubble_2.png",
+      "/bubble/bubble_3.png",
+    ];
+
+    const count = 40; // 화면을 넓게 채우는 정도
+    const created = Array.from({ length: count }).map((_, i) => {
+      const img = imgs[i % imgs.length];
+
+      // 크기(뷰포트 비율): 작은/중간/큰 버블 비율 조절
+      const bucket = Math.random();
+      const width =
+        bucket < 0.4 ? rand(8, 14) :      // 작은 버블
+        bucket < 0.8 ? rand(14, 22) :     // 중간 버블
+        rand(22, 30);                     // 큰 버블
+
+      // 위치 - 화면 전체(약간 여백 두고)로 퍼지게
+      const top = rand(6, 94);
+      const left = rand(6, 94);
+
+      // 움직임 파라미터 (부드러운 플로팅)
+      const dx = `${rand(18, 28).toFixed(1)}px`;
+      const dy = `${rand(14, 24).toFixed(1)}px`;
+      const dur = `${rand(11, 18).toFixed(1)}s`;
+      const float = `${rand(4.5, 7.5).toFixed(1)}s`;
+      const dWrap = `${(-rand(0, 2)).toFixed(2)}s`;
+      const dImg = `${(-rand(0, 2)).toFixed(2)}s`;
+
+      return {
+        id: `rb${i}`,
+        img,
+        top,
+        left,
+        width,
+        dx,
+        dy,
+        dur,
+        float,
+        dWrap,
+        dImg,
+      };
+    });
+
+    setAllBubbles(created);
+  }, []);
 
   // Foot story 이미지 시퀀스 (말풍선 이미지를 대체)
   const footFrames = [
