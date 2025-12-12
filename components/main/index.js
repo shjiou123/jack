@@ -150,7 +150,7 @@ export default function MainPage() {
     window.removeEventListener("pointercancel", handlePointerUp);
     window.removeEventListener("blur", handlePointerUp);
   }, [handlePointerMove]);
-// test test
+// test test test
   const handlePointerDown = useCallback((e) => {
     const target = e.target.closest?.(".cloudWrap");
     if (!target) return;
