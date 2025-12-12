@@ -11,20 +11,22 @@ export default function MainPage() {
   const isDraggingRef = useRef(false);
   const [hasVisitedPopup, setHasVisitedPopup] = useState(false);
 
-  // Random clouds (5 images, at least 3 each) - generate on client after mount to avoid SSR hydration mismatch
+  // Random clouds (6 images) - generate on client after mount to avoid SSR hydration mismatch
   const [randomStemClouds, setRandomStemClouds] = useState([]);
   useEffect(() => {
     const rand = (min, max) => Math.random() * (max - min) + min;
-    // 요청하신 4종 구름만 랜덤으로 사용
+    // 요청하신 6종 구름 이미지를 랜덤으로 사용
     const cloudSrcs = [
-      "/cloud/구름_1.png",
-      "/cloud/구름_2.png",
-      "/cloud/구름_4.png",
-      "/cloud/구름.png",
+      "/cloud/cloud_1.png",
+      "/cloud/cloud_2.png",
+      "/cloud/cloud_3.png",
+      "/cloud/cloud_4.png",
+      "/cloud/cloud_5.png",
+      "/cloud/cloud.png",
     ];
     const clouds = [];
     cloudSrcs.forEach((src) => {
-      const count = 2 + Math.floor(Math.random() * 2); // 2~3 per type
+      const count = 3 + Math.floor(Math.random() * 2); // 3~4 per type
       for (let i = 0; i < count; i++) {
         // size buckets: small(30%), medium(50%), large(20%)
         const bucket = Math.random();
@@ -32,9 +34,9 @@ export default function MainPage() {
           bucket < 0.3 ? rand(10, 18) :
           bucket < 0.8 ? rand(20, 36) :
           rand(38, 52);
-        // spread more widely across the viewport while staying mostly in stem band
-        const leftPct = rand(20, 80);
-        const topPx = rand(300, 6500);
+        // 화면 전체에 넓게 퍼지도록 (줄기 위/아래 여유 포함)
+        const leftPct = rand(5, 95);
+        const topPx = rand(0, 6500);
         // 실제로 움직임이 눈에 보이면서도 느릿하게 흐르도록
         const drift = rand(12, 22);
         const floatDur = rand(6, 10);
@@ -260,26 +262,7 @@ export default function MainPage() {
     <Main ref={mainRef} onPointerDown={handlePointerDown}>
       <GlobalStyles />
 
-      {/* Floating clouds (top group with fixed class timing) */}
-      <CloudWrap className="cloudWrap cloud1" $top="40px" $left="8%" $width="38vw" $maxWidth="980px" $zIndex={5}>
-        <CloudImg className="cloudImg cloudImg1" src="/cloud/구름_1.png" alt="Cloud" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap cloud2" $top="110px" $left="28%" $width="44vw" $maxWidth="1200px" $zIndex={5}>
-        <CloudImg className="cloudImg cloudImg2" src="/cloud/구름_2.png" alt="Cloud" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap cloud3" $top="180px" $left="48%" $width="36vw" $maxWidth="980px" $zIndex={5}>
-        <CloudImg className="cloudImg cloudImg3" src="/cloud/구름_1.png" alt="Cloud" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap cloud4" $top="240px" $left="66%" $width="50vw" $maxWidth="1350px" $zIndex={5}>
-        <CloudImg className="cloudImg cloudImg4" src="/cloud/구름_2.png" alt="Cloud" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap cloud5" $top="300px" $left="84%" $width="32vw" $maxWidth="900px" $zIndex={5}>
-        <CloudImg className="cloudImg cloudImg5" src="/cloud/구름_1.png" alt="Cloud" />
-      </CloudWrap>
-
-      {/* Stem bubbles removed as requested */}
-
-      {/* Randomized stem clouds (5 types, ≥3 each) */}
+      {/* Randomized clouds (6 types), 화면 전체에 퍼져있는 구름들 */}
       {randomStemClouds.map((c, idx) => {
         const toNum = (v) => {
           const n = typeof v === "string" ? parseFloat(v) : v;
@@ -300,66 +283,25 @@ export default function MainPage() {
         const widthVw = Number.isFinite(widthVwRaw) ? clamp(widthVwRaw, 8, 60) : 32;
         const maxWidthPx = Number.isFinite(maxWidthPxRaw) ? clamp(maxWidthPxRaw, 200, 1600) : Math.round(widthVw * 30);
         return (
-        <CloudWrap
-          key={`rcloud-${idx}`}
-          className="cloudWrap"
-          $top={`${topPx}px`}
-          $left={`${leftPct}%`}
-          $width={`${widthVw}vw`}
-          $maxWidth={`${maxWidthPx}px`}
-          $zIndex={c.z || 5}
-          $driftDuration={`${driftVal.toFixed(1)}s`}
-        >
-          <CloudImg
-            className="cloudImg"
-            src={c.src}
-            alt="Cloud"
-            $floatDuration={`${floatVal.toFixed(1)}s`}
-          />
-        </CloudWrap>
+          <CloudWrap
+            key={`rcloud-${idx}`}
+            className="cloudWrap"
+            $top={`${topPx}px`}
+            $left={`${leftPct}%`}
+            $width={`${widthVw}vw`}
+            $maxWidth={`${maxWidthPx}px`}
+            $zIndex={c.z || 5}
+            $driftDuration={`${driftVal.toFixed(1)}s`}
+          >
+            <CloudImg
+              className="cloudImg"
+              src={c.src}
+              alt="Cloud"
+              $floatDuration={`${floatVal.toFixed(1)}s`}
+            />
+          </CloudWrap>
         );
       })}
-
-      {/* Redistributed 구름5 (fewer, spread along the stem) */}
-      <CloudWrap className="cloudWrap" $top="540px" $left="51%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="6.8s">
-        <CloudImg className="cloudImg" src="/cloud/구름.png" alt="Cloud" $floatDuration="2.4s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2000px" $left="49%" $width="36vw" $maxWidth="1050px" $zIndex={5} $driftDuration="6.4s">
-        <CloudImg className="cloudImg" src="/cloud/구름.png" alt="Cloud" $floatDuration="2.2s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="3200px" $left="53%" $width="42vw" $maxWidth="1230px" $zIndex={5} $driftDuration="6.9s">
-        <CloudImg className="cloudImg" src="/cloud/구름.png" alt="Cloud" $floatDuration="2.5s" />
-      </CloudWrap>
-
-      {/* Mid-scroll clouds (prop-driven timing) */}
-      <CloudWrap className="cloudWrap" $top="900px" $left="47%" $width="42vw" $maxWidth="1140px" $zIndex={5} $driftDuration="7.5s">
-        <CloudImg className="cloudImg" src="/cloud/구름_2.png" alt="Cloud" $floatDuration="3.0s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="1500px" $left="50%" $width="45vw" $maxWidth="1230px" $zIndex={5} $driftDuration="7s">
-        <CloudImg className="cloudImg" src="/cloud/구름_1.png" alt="Cloud" $floatDuration="2.8s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2100px" $left="53%" $width="36vw" $maxWidth="1050px" $zIndex={5} $driftDuration="8s">
-        <CloudImg className="cloudImg" src="/cloud/구름_2.png" alt="Cloud" $floatDuration="2.6s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="2700px" $left="49%" $width="33vw" $maxWidth="930px" $zIndex={5} $driftDuration="6.5s">
-        <CloudImg className="cloudImg" src="/cloud/구름_1.png" alt="Cloud" $floatDuration="2.4s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="3300px" $left="55%" $width="48vw" $maxWidth="1350px" $zIndex={5} $driftDuration="8.5s">
-        <CloudImg className="cloudImg" src="/cloud/구름_2.png" alt="Cloud" $floatDuration="3.4s" />
-      </CloudWrap>
-
-      {/* Extra clouds (faster speed) */}
-      <CloudWrap className="cloudWrap" $top="3900px" $left="51%" $width="42vw" $maxWidth="1230px" $zIndex={5} $driftDuration="6.8s">
-        <CloudImg className="cloudImg" src="/cloud/구름_3.png" alt="Cloud" $floatDuration="2.2s" />
-      </CloudWrap>
-      <CloudWrap className="cloudWrap" $top="4500px" $left="48%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="6.2s">
-        <CloudImg className="cloudImg" src="/cloud/구름_4.png" alt="Cloud" $floatDuration="2.0s" />
-      </CloudWrap>
-
-      {/* Additional stem cloud */}
-      <CloudWrap className="cloudWrap" $top="5700px" $left="50%" $width="39vw" $maxWidth="1140px" $zIndex={5} $driftDuration="5.6s">
-        <CloudImg className="cloudImg" src="/cloud/구름_3.png" alt="Cloud" $floatDuration="1.8s" />
-      </CloudWrap>
 
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">

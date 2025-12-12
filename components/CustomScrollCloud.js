@@ -112,7 +112,7 @@ export default function CustomScrollCloud() {
       <img
         ref={thumbRef}
         className="custom-scroll-thumb"
-        src="/cloud_7.png"
+        src="/cloud/cloud_5.png"
         alt="Scroll thumb cloud"
       />
     </div>
