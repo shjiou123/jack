@@ -1,6 +1,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, JackImgOverlay, DoorHotspot } from "./styles";
 
+//test
 export default function MainPage() {
   const mainRef = useRef(null);
   const draggingElRef = useRef(null);
