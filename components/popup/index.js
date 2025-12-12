@@ -16,6 +16,7 @@ export default function PopupView() {
   const [showBalloon, setShowBalloon] = useState(false);
   const [balloonClosing, setBalloonClosing] = useState(false); // 남겨두지만 더 이상 사용하진 않음
   const [footFrame, setFootFrame] = useState(0);
+  const [storyFinished, setStoryFinished] = useState(false); // 한 번 끝나면 다시 열리지 않도록
 
   // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
   useEffect(() => {
@@ -125,14 +126,16 @@ export default function PopupView() {
   }, []);
 
   // Foot story 이미지 시퀀스 (말풍선 이미지를 대체)
+  // 말풍선 안에서 순서대로 보여줄 팝업 이미지들
+  // 마지막 장(popup1_6)이 끝나면 말풍선이 닫히고,
+  // 배경에 깔린 HouseImg(`/foot/foot.png`)만 남는다.
   const footFrames = [
-    "/foot/foot_1.png",
-    "/foot/foot_2.png",
-    "/foot/foot_3.png",
-    "/foot/foot_4.png",
-    "/foot/foot_5.png",
-    "/foot/foot_6.png",
-    "/foot/foot.png", // 맨 뒷장: 전체 화면용 이미지
+    "/foot/popup1_1.png",
+    "/foot/popup1_2.png",
+    "/foot/popup1_3.png",
+    "/foot/popup1_4.png",
+    "/foot/popup1_5.png",
+    "/foot/popup1_6.png",
   ];
 
   const handlePointerMove = useCallback((e) => {
@@ -212,8 +215,8 @@ export default function PopupView() {
       <HouseWrap
         className="houseWrap"
         onClick={() => {
-          // If balloon is open, ignore background taps (balloon handles its own close)
-          if (showBalloon) return;
+          // If balloon is open or 이미 스토리가 끝났으면, 다시 열지 않는다.
+          if (showBalloon || storyFinished) return;
           // Only allow balloon after clusters are gone
           if (!burstVisible && !burst2Visible && !burst3Visible) {
             setShowBalloon(true);
@@ -258,8 +261,9 @@ export default function PopupView() {
               setFootFrame((prev) => {
                 const next = prev + 1;
                 if (next >= footFrames.length) {
-                  // 마지막까지 본 뒤에는 말풍선 닫기
+                  // 마지막까지 본 뒤에는 말풍선 닫기 + 다시 열리지 않도록 플래그 설정
                   setShowBalloon(false);
+                  setStoryFinished(true);
                   return prev;
                 }
                 return next;

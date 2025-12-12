@@ -155,8 +155,10 @@ export const BalloonWrap = styled.div`
   pointer-events: auto;
   animation: ${fadeIn} 220ms ease-out both;
   width: 100vw;
+  height: 100vh;
   max-width: 100vw;
-  max-height: 95vh;
+  max-height: 100vh;
+  overflow: hidden; /* 살짝 확대된 이미지를 안전하게 잘라내기 위해 */
   &.closing {
     animation: ${fadeOutOnly} 400ms ease-out forwards;
     pointer-events: none;
@@ -166,10 +168,12 @@ export const BalloonWrap = styled.div`
 export const BalloonImg = styled.img`
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   max-width: 100vw;
-  max-height: 95vh;
-  object-fit: contain;
+  max-height: 100vh;
+  object-fit: cover; /* 화면 비율에 맞게 꽉 채우되, 가장자리 조금 크롭 */
+  transform: scale(1.02); /* 살짝 더 키워서 여백 최소화 */
+  transform-origin: center center;
   user-select: none;
   -webkit-user-drag: none;
 `;
