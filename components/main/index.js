@@ -53,16 +53,10 @@ export default function MainPage() {
     setRandomStemClouds(clouds);
   }, []);
 
-  // 팝업을 다녀왔을 때만 (같은 세션/탭에서) 배경 이미지를 교체.
-  // 새로고침하면 항상 background_b.png 로 다시 시작하도록, 마운트 시 플래그를 지운다.
+  // 메인 줄기 장면 단계 관리 (아침 → 저녁 2단계).
+  // 새로고침하면 항상 아침으로 시작하고, 팝업 탭에서 localStorage "visitedPopup" 값이 바뀌면 storage 이벤트로 반영.
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    // 새로고침된 뒤에는 항상 초기 상태로
-    try {
-      window.localStorage.removeItem("visitedPopup");
-    } catch {}
-    setHasVisitedPopup(false);
 
     const handleStorage = (e) => {
       if (e.key === "visitedPopup" && e.newValue === "true") {
@@ -71,6 +65,11 @@ export default function MainPage() {
     };
 
     window.addEventListener("storage", handleStorage);
+    try {
+      window.localStorage.removeItem("visitedPopup");
+    } catch {}
+    setHasVisitedPopup(false);
+
     return () => {
       window.removeEventListener("storage", handleStorage);
     };
@@ -364,13 +363,17 @@ export default function MainPage() {
 
       {/* Jack image and door hotspot (image-driven) */}
       <JackWrap className="jackWrap">
-        {/* 기본 줄기 이미지 (항상 보임) */}
-        <JackImg className="jackImg" src="/background_b.png" alt="Stem" />
-        {/* 팝업 방문 후 위에 부드럽게 페이드인 되는 이미지 */}
+        {/* 첫 화면: 아침 줄기 이미지 */}
+        <JackImg
+          className="jackImg"
+          src="/main_morning.png"
+          alt="Stem - morning"
+        />
+        {/* 팝업 다녀온 후: 저녁 줄기 이미지가 부드럽게 페이드인 */}
         <JackImgOverlay
           className="jackImg"
-          src="/background.png"
-          alt="Stem after popup"
+          src="/main_evening.png"
+          alt="Stem - evening"
           $visible={hasVisitedPopup}
         />
         <DoorHotspot

@@ -222,7 +222,7 @@ export default function OpenDoorView() {
           />
         </CloudWrap>
       ))}
-      <HouseImage src="/open.png" alt="Open Door" />
+      <HouseImage src="/open_door.png" alt="Open Door" />
       <EnterButton aria-label="입장하기" onClick={() => router.push("/main")} />
     </OpenContainer>
   );
