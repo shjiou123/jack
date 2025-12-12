@@ -301,7 +301,18 @@ export default function PopupView() {
         ))}
       </HouseWrap>
 
-      <CloseButton onClick={() => window.close()}>닫기</CloseButton>
+      <CloseButton
+        aria-label="닫기"
+        onClick={() => {
+          try {
+            window.close();
+          } catch (e) {
+            if (window.history && window.history.back) {
+              window.history.back();
+            }
+          }
+        }}
+      />
     </Main>
   );
 }

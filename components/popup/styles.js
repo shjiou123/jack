@@ -116,14 +116,28 @@ export const BubbleImg = styled.img`
 
 export const CloseButton = styled.button`
   position: fixed;
-  top: 16px;
-  right: 16px;
-  background: #111;
-  color: #fff;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
+  background: url("/foot/button_1.png") center/cover no-repeat;
+  box-shadow: 0 0 0 0 transparent;
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, opacity 0.12s ease-out;
+  opacity: 0.98;
+
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.22);
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.18);
+  }
 `;
 
 /* Speech balloon */
