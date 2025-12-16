@@ -1,9 +1,18 @@
 import styled, { createGlobalStyle, keyframes, css } from "styled-components";
 
-const driftX = keyframes`
-  0%   { transform: translateX(calc(var(--dx, 18px) * -1)); }
-  50%  { transform: translateX(calc(var(--dx, 18px) * 0.5)); }
-  100% { transform: translateX(var(--dx, 18px)); }
+// 수평 드리프트 대신, 빗방울이 위에서 아래로 떨어지는 애니메이션
+const fallY = keyframes`
+  0% {
+    transform: translate(-50%, -120vh);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 120vh);
+    opacity: 0.95;
+  }
 `;
 
 const floaty = keyframes`
@@ -90,10 +99,13 @@ export const Bubble = styled.div`
   top: ${(p) => p.$top};
   left: ${(p) => p.$left};
   width: ${(p) => p.$width};
-  /* expose motion params via CSS vars for keyframes */
-  --dx: ${(p) => p.$dx || '18px'};
-  --dy: ${(p) => p.$dy || '16px'};
-  ${(p) => p.$dur ? css`animation: ${driftX} ${p.$dur} ease-in-out infinite alternate;` : ''}
+  /* 수직 낙하 애니메이션 (이전보다 속도를 절반 정도로 늦추기 위해 duration을 0.9배로 조정) */
+  ${(p) => {
+    if (!p.$dur) return "";
+    const base = parseFloat(String(p.$dur));
+    const dur = Number.isFinite(base) ? `${(base * 0.9).toFixed(2)}s` : p.$dur;
+    return css`animation: ${fallY} ${dur} linear infinite;`;
+  }}
   &.popping {
     animation: ${popOut} 320ms cubic-bezier(.2,.8,.2,1) forwards !important;
     pointer-events: none;
@@ -106,7 +118,8 @@ export const BubbleImg = styled.img`
   display: block;
   user-select: none;
   -webkit-user-drag: none;
-  ${(p) => p.$float ? css`animation: ${floaty} ${p.$float} ease-in-out infinite alternate, ${breath} 10s ease-in-out infinite;` : ''}
+  /* 빗방울은 하강 애니메이션만 사용하고, 추가 플로팅은 제거 */
+  ${(p) => p.$float ? css`animation: ${breath} 8s ease-in-out infinite;` : ''}
 `;
 
 export const CloseButton = styled.button`
