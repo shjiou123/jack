@@ -1,25 +1,66 @@
 import { useEffect, useState, useCallback } from "react";
+import styled, { keyframes } from "styled-components";
 import { GlobalStyles, Main, HouseWrap, HouseImg, CloseButton } from "../popup/styles";
+
+// 연기 이미지가 좌우로 사라지는 애니메이션
+const smokeDriftLeft = keyframes`
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-40vw);
+    opacity: 0;
+  }
+`;
+
+const smokeDriftRight = keyframes`
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(40vw);
+    opacity: 0;
+  }
+`;
+
+const SmokeImgLeft = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* 화면 크기에 딱 맞춘 상태에서 시작 */
+  pointer-events: none;
+  animation: ${smokeDriftLeft} 4s ease-out forwards;
+`;
+
+const SmokeImgRight = styled(SmokeImgLeft)`
+  animation: ${smokeDriftRight} 4s ease-out forwards;
+`;
 
 export default function PopupView() {
   // 항상 뒤에 깔려 있는 배경 이미지
-  const backgroundSrc = "/popup_3/popup3.png";
+  const backgroundSrc = "/house3/house_3.png";
 
   // 앞쪽에 순서대로 보여줄 대화 이미지들
   const overlayFrames = [
-    "/popup_3/popup2_2.png",
-    "/popup_3/popup2_3.png",
-    "/popup_3/popup2_4.png",
-    "/popup_3/popup2_5.png",
-    "/popup_3/popup2_6.png",
+    "/house3/popup_3/popup2_1.png",
+    "/house3/popup_3/popup2_2.png",
+    "/house3/popup_3/popup2_3.png",
+    "/house3/popup_3/popup2_4.png",
+    "/house3/popup_3/popup2_5.png",
+    "/house3/popup_3/popup2_6.png",
   ];
   // -1: 아직 오버레이 없음(배경만 보임), 0~N-1: overlayFrames 인덱스
   const [frameIndex, setFrameIndex] = useState(-1);
 
   const handleAdvanceFrame = useCallback(() => {
-    setFrameIndex((prev) =>
-      prev >= overlayFrames.length - 1 ? prev : prev + 1
-    );
+    setFrameIndex((prev) => {
+      // 마지막 장을 본 뒤 한 번 더 누르면, 다시 배경만 보이도록 -1로 리셋
+      if (prev >= overlayFrames.length - 1) return -1;
+      return prev + 1;
+    });
   }, [overlayFrames.length]);
 
   // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
@@ -41,7 +82,7 @@ export default function PopupView() {
       <HouseWrap
         className="houseWrap"
         style={{
-          cursor: frameIndex < overlayFrames.length - 1 ? "pointer" : "default",
+          cursor: "pointer",
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -49,7 +90,11 @@ export default function PopupView() {
         }}
       >
         {/* 항상 뒤에 깔리는 배경 이미지 */}
-        <HouseImg src={backgroundSrc} alt="Kitchen pot scene" />
+        <HouseImg src={backgroundSrc} alt="House 3 scene" />
+
+        {/* 팝업이 열리자마자 양 옆으로 사라지는 연기 이미지들 */}
+        <SmokeImgLeft src="/house3/smoke1.png" alt="Kitchen smoke left" />
+        <SmokeImgRight src="/house3/smoke2.png" alt="Kitchen smoke right" />
 
         {/* 클릭할 때마다 앞에 덮이는 대화 프레임 */}
         {frameIndex >= 0 && (
@@ -59,9 +104,9 @@ export default function PopupView() {
             style={{
               position: "absolute",
               inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
+              width: "100vw",
+              height: "100vh",
+              objectFit: "cover", // 화면 비율에 맞춰 꽉 차게 표시
             }}
           />
         )}
