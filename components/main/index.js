@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useEffect } from "react";
-import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, JackImgOverlay, DoorHotspot } from "./styles";
+import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, JackImgOverlay, DoorHotspot, RainDropWrap, RainDropImg } from "./styles";
 
 //test
 export default function MainPage() {
@@ -10,6 +10,7 @@ export default function MainPage() {
   const dragDeltaRef = useRef({ dx: 0, dy: 0 });
   const isDraggingRef = useRef(false);
   const [hasVisitedPopup, setHasVisitedPopup] = useState(false);
+  const [rainBursts, setRainBursts] = useState([]);
 
   // Random clouds (6 images) - generate on client after mount to avoid SSR hydration mismatch
   const [randomStemClouds, setRandomStemClouds] = useState([]);
@@ -55,6 +56,36 @@ export default function MainPage() {
       }
     });
     setRandomStemClouds(clouds);
+  }, []);
+
+  // 특정 구름( cloud_1, cloud_2 )을 클릭했을 때 잠깐 비가 내리는 연출
+  const triggerRain = useCallback(() => {
+    const makeRand = (min, max) => Math.random() * (max - min) + min;
+    const batchId = Date.now();
+    const drops = [];
+    const count = 40; // 화면 전체에 충분히 보이도록 여러 개 생성
+    for (let i = 0; i < count; i++) {
+      const left = makeRand(5, 95); // 화면 가로 5~95% 범위
+      const size = makeRand(22, 40); // 픽셀 단위 크기
+      const duration = makeRand(1.5, 2.4); // 개별 낙하 속도
+      const src =
+        i % 2 === 0
+          ? "/house2/raindrop1.png"
+          : "/house2/raindrop2.png";
+      drops.push({
+        id: `rain-${batchId}-${i}`,
+        batchId,
+        left,
+        size,
+        duration,
+        src,
+      });
+    }
+    setRainBursts((prev) => [...prev, ...drops]);
+    // 약 3초 뒤에 이번 배치만 제거
+    window.setTimeout(() => {
+      setRainBursts((prev) => prev.filter((d) => d.batchId !== batchId));
+    }, 3000);
   }, []);
 
   // 메인 줄기 장면 단계 관리 (아침 → 저녁 2단계).
@@ -157,8 +188,25 @@ export default function MainPage() {
   const handlePointerDown = useCallback((e) => {
     const target = e.target.closest?.(".cloudWrap");
     if (!target) return;
+
+    // cloud_1 ~ cloud_5 는 "비 내리는 버튼" 역할만 하도록 드래그를 막는다.
+    // (클릭 시에는 onClick에서 triggerRain 이 실행됨)
+    const imgEl = target.querySelector("img");
+    const src = imgEl?.getAttribute("src") || "";
+    if (
+      src === "/cloud/cloud_1.png" ||
+      src === "/cloud/cloud_2.png" ||
+      src === "/cloud/cloud_3.png" ||
+      src === "/cloud/cloud_4.png" ||
+      src === "/cloud/cloud_5.png"
+    ) {
+      return;
+    }
+
     e.preventDefault();
-    try { target.setPointerCapture && target.setPointerCapture(e.pointerId); } catch {}
+    try {
+      target.setPointerCapture && target.setPointerCapture(e.pointerId);
+    } catch {}
     draggingElRef.current = target;
     isDraggingRef.current = true;
     pauseAllCloudAnims();
@@ -276,6 +324,21 @@ export default function MainPage() {
     <Main ref={mainRef} onPointerDown={handlePointerDown}>
       <GlobalStyles />
 
+      {/* 클릭 시 생성되는 빗방울 효과 */}
+      {rainBursts.map((drop) => (
+        <RainDropWrap
+          key={drop.id}
+          $left={`${drop.left}vw`}
+          $duration={`${drop.duration.toFixed(2)}s`}
+        >
+          <RainDropImg
+            src={drop.src}
+            alt="Raindrop"
+            $size={`${drop.size.toFixed(1)}px`}
+          />
+        </RainDropWrap>
+      ))}
+
       {/* Randomized clouds (6 types), 화면 전체에 퍼져있는 구름들 */}
       {randomStemClouds.map((c, idx) => {
         const toNum = (v) => {
@@ -312,6 +375,17 @@ export default function MainPage() {
               src={c.src}
               alt="Cloud"
               $floatDuration={`${floatVal.toFixed(1)}s`}
+              onClick={() => {
+                if (
+                  c.src === "/cloud/cloud_1.png" ||
+                  c.src === "/cloud/cloud_2.png" ||
+                  c.src === "/cloud/cloud_3.png" ||
+                  c.src === "/cloud/cloud_4.png" ||
+                  c.src === "/cloud/cloud_5.png"
+                ) {
+                  triggerRain();
+                }
+              }}
             />
           </CloudWrap>
         );

@@ -17,6 +17,21 @@ const breath = keyframes`
   50%     { opacity: 1; }
 `;
 
+// 메인 페이지에서 잠깐 나타나는 "비 내리는" 연출용 낙하 애니메이션
+const rainFall = keyframes`
+  0% {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh);
+    opacity: 0.95;
+  }
+`;
+
 export const GlobalStyles = createGlobalStyle`
   .cloudWrap { cursor: grab; touch-action: none; will-change: transform; }
   .cloudWrap:active { cursor: grabbing; }
@@ -81,6 +96,24 @@ export const CloudImg = styled.img`
     p.$floatDuration
       ? css`animation: ${floaty} ${p.$floatDuration} ease-in-out infinite alternate;`
       : ""}
+`;
+
+// 클릭 시 잠깐 떨어지는 빗방울 래퍼/이미지
+export const RainDropWrap = styled.div`
+  position: fixed;
+  top: 0;
+  left: ${(p) => p.$left || "50%"};
+  z-index: 50;
+  pointer-events: none;
+  animation: ${rainFall} ${(p) => p.$duration || "1.8s"} linear forwards;
+`;
+
+export const RainDropImg = styled.img`
+  display: block;
+  width: ${(p) => p.$size || "26px"};
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
 `;
 
 export const JackWrap = styled.div`
