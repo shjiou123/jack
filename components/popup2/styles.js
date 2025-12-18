@@ -26,6 +26,29 @@ const breath = keyframes`
   50% { opacity: 1; }
 `;
 
+// popup3의 연기처럼, 커튼이 좌우로 열리며 사라지는 애니메이션
+const curtainOpenLeft = keyframes`
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-40vw);
+    opacity: 0;
+  }
+`;
+
+const curtainOpenRight = keyframes`
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(40vw);
+    opacity: 0;
+  }
+`;
+
 /* Inward-only drift/float so edges never reveal gaps */
 const burstDriftInTL = keyframes`
   0%   { transform: translateX(0); }
@@ -89,6 +112,22 @@ export const HouseImg = styled.img`
   height: 100%;
   object-fit: cover;
   display: block;
+`;
+
+// 화면 전체를 덮고, 자연스럽게 좌우로 열리는 커튼 이미지
+export const CurtainImgLeft = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* 화면 비율에 딱 맞춰서 시작 */
+  pointer-events: none;
+  z-index: 8; /* 배경/빗방울 위에, 닫기 버튼 아래에 오도록 */
+  animation: ${curtainOpenLeft} 4s ease-out forwards;
+`;
+
+export const CurtainImgRight = styled(CurtainImgLeft)`
+  animation: ${curtainOpenRight} 4s ease-out forwards;
 `;
 
 export const Bubble = styled.div`

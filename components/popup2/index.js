@@ -1,5 +1,15 @@
 import { useRef, useCallback, useState, useEffect } from "react";
-import { GlobalStyles, Main, HouseWrap, HouseImg, Bubble, BubbleImg, CloseButton, BurstWrap, BurstImg, BurstWrapBR, BurstWrapTR } from "./styles";
+import {
+  GlobalStyles,
+  Main,
+  HouseWrap,
+  HouseImg,
+  Bubble,
+  BubbleImg,
+  CloseButton,
+  CurtainImgLeft,
+  CurtainImgRight,
+} from "./styles";
 ///위치: array constant 빼기
 
 export default function PopupView() {
@@ -7,12 +17,6 @@ export default function PopupView() {
   const startRef = useRef({ x: 0, y: 0, left: 0, top: 0 });
   const dragRafIdRef = useRef(null);
   const dragDeltaRef = useRef({ dx: 0, dy: 0 });
-  const [burstPopping, setBurstPopping] = useState(false);
-  const [burstVisible, setBurstVisible] = useState(true);
-  const [burst2Popping, setBurst2Popping] = useState(false);
-  const [burst2Visible, setBurst2Visible] = useState(true);
-  const [burst3Popping, setBurst3Popping] = useState(false);
-  const [burst3Visible, setBurst3Visible] = useState(true);
 
   // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
   useEffect(() => {
@@ -27,39 +31,6 @@ export default function PopupView() {
     };
   }, []);
 
-  // Auto-pop clusters after ~3s (staggered slightly)
-  useEffect(() => {
-    if (!burstVisible) return;
-    const t = setTimeout(() => setBurstPopping(true), 3000);
-    return () => clearTimeout(t);
-  }, [burstVisible]);
-  useEffect(() => {
-    if (!burst2Visible) return;
-    const t = setTimeout(() => setBurst2Popping(true), 3400);
-    return () => clearTimeout(t);
-  }, [burst2Visible]);
-  useEffect(() => {
-    if (!burst3Visible) return;
-    const t = setTimeout(() => setBurst3Popping(true), 3800);
-    return () => clearTimeout(t);
-  }, [burst3Visible]);
-
-  // Safety fallback: hide even if animationend doesn’t fire
-  useEffect(() => {
-    if (!burstPopping || !burstVisible) return;
-    const t = setTimeout(() => setBurstVisible(false), 1600);
-    return () => clearTimeout(t);
-  }, [burstPopping, burstVisible]);
-  useEffect(() => {
-    if (!burst2Popping || !burst2Visible) return;
-    const t = setTimeout(() => setBurst2Visible(false), 1600);
-    return () => clearTimeout(t);
-  }, [burst2Popping, burst2Visible]);
-  useEffect(() => {
-    if (!burst3Popping || !burst3Visible) return;
-    const t = setTimeout(() => setBurst3Visible(false), 1600);
-    return () => clearTimeout(t);
-  }, [burst3Popping, burst3Visible]);
   const [bubbleState, setBubbleState] = useState({});
   const bubbleVisible = (id) => bubbleState[id]?.visible !== false;
   const handleBubbleClick = (id) => {
@@ -183,34 +154,9 @@ export default function PopupView() {
       <HouseWrap className="houseWrap">
         <HouseImg src="/house2/house2.png" alt="House 2" />
 
-        {/* Top-left burst cluster anchored to screen ratio */}
-        {burstVisible && (
-          <BurstWrap
-            className={burstPopping ? 'popping' : ''}
-            onClick={() => setBurstPopping(true)}
-            onAnimationEnd={() => { if (burstPopping) setBurstVisible(false); }}
-          >
-            <BurstImg src="/bubble/버블뭉치1.png" alt="bubble-burst-cluster" style={{ animationDelay: '-1.2s' }} />
-          </BurstWrap>
-        )}
-        {burst2Visible && (
-          <BurstWrapBR
-            className={burst2Popping ? 'popping' : ''}
-            onClick={() => setBurst2Popping(true)}
-            onAnimationEnd={() => { if (burst2Popping) setBurst2Visible(false); }}
-          >
-            <BurstImg src="/bubble/버블뭉치2.png" alt="bubble-burst-cluster-2" style={{ animationDelay: '-2.0s' }} />
-          </BurstWrapBR>
-        )}
-        {burst3Visible && (
-          <BurstWrapTR
-            className={burst3Popping ? 'popping' : ''}
-            onClick={() => setBurst3Popping(true)}
-            onAnimationEnd={() => { if (burst3Popping) setBurst3Visible(false); }}
-          >
-            <BurstImg src="/bubble/버블뭉치3.png" alt="bubble-burst-cluster-3" style={{ animationDelay: '-1.6s' }} />
-          </BurstWrapTR>
-        )}
+        {/* popup3의 연기처럼, 처음에 화면을 가득 덮었다가 좌우로 열리는 커튼 */}
+        <CurtainImgLeft src="/curtain.png" alt="Curtain left" />
+        <CurtainImgRight src="/curtain2.png" alt="Curtain right" />
 
         {/* Render all bubbles (size doubled, count tripled) */}
         {allBubbles.map((b) => (

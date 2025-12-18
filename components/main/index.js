@@ -413,7 +413,7 @@ export default function MainPage() {
           target="_blank"
           rel="noopener noreferrer"
           title="문 열기"
-          $top="19.7%"
+          $top="20.7%"
           $left="43.5%"
           $width="14.25%"
           $height="2.36%"
@@ -426,24 +426,11 @@ export default function MainPage() {
           target="_blank"
           rel="noopener noreferrer"
           title="새 팝업 열기"
-          $top="52%"
-          $left="50%"
+          $top="49%"   // Y축으로 1% 위로
+          $left="51%"  // X축으로 1% 오른쪽으로
           $width="15%"
           $height="3%"
-          style={{
-            zIndex: 40,
-            background: "rgba(255,0,0,0.25)",
-            border: "3px solid rgba(255,0,0,0.85)",
-            color: "#b00",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 800,
-            letterSpacing: "0.04em"
-          }}
-        >
-          POPUP2
-        </DoorHotspot>
+        />
         {/* Third popup hotspot - popup3 (blue marker) */}
         <DoorHotspot
           aria-label="새 팝업3 열기"
@@ -458,9 +445,9 @@ export default function MainPage() {
           $height="3%"
           style={{
             zIndex: 41,
-            background: "rgba(0,120,255,0.22)",
-            border: "3px solid rgba(0,120,255,0.9)",
-            color: "#0057cc",
+            background: "transparent",
+            border: "3px solid transparent",
+            color: "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
