@@ -38,8 +38,10 @@ export default function MainPage() {
         const leftPct = rand(5, 95);
         const topPx = rand(0, 6500);
         // 실제로 움직임이 눈에 보이면서도 느릿하게 흐르도록
-        const drift = rand(12, 22);
-        const floatDur = rand(6, 10);
+        // 살짝 더 빠르게 움직이도록 기존보다 duration을 줄임
+        // (값이 작을수록 속도가 빨라짐)
+        const drift = rand(8, 14);      // 기존 12~22s → 8~14s
+        const floatDur = rand(4, 6.5);  // 기존 6~10s  → 4~6.5s
         clouds.push({
           src,
           widthVw,
@@ -152,7 +154,6 @@ export default function MainPage() {
     window.removeEventListener("pointercancel", handlePointerUp);
     window.removeEventListener("blur", handlePointerUp);
   }, [handlePointerMove]);
-// test test test
   const handlePointerDown = useCallback((e) => {
     const target = e.target.closest?.(".cloudWrap");
     if (!target) return;
@@ -161,10 +162,23 @@ export default function MainPage() {
     draggingElRef.current = target;
     isDraggingRef.current = true;
     pauseAllCloudAnims();
-    const cs = window.getComputedStyle(target);
-    const leftPx = parseFloat(cs.left) || target.offsetLeft || 0;
-    const topPx = parseFloat(cs.top) || target.offsetTop || 0;
+
+    // 현재 화면에 보이는 위치(애니메이션 적용된 transform 포함)를 기준으로
+    // left/top을 한 번 고정해 주어, 드래그 시작 시 "튐" 현상을 줄인다.
+    const rect = target.getBoundingClientRect();
+    const parentRect =
+      target.offsetParent && target.offsetParent.getBoundingClientRect
+        ? target.offsetParent.getBoundingClientRect()
+        : { left: 0, top: 0 };
+    const leftPx = rect.left - parentRect.left;
+    const topPx = rect.top - parentRect.top;
+    target.style.left = `${leftPx}px`;
+    target.style.top = `${topPx}px`;
+    // 이후 이동은 JS에서만 처리하므로 기존 transform은 제거
+    target.style.transform = "";
+
     startRef.current = { x: e.clientX, y: e.clientY, left: leftPx, top: topPx };
+
     target.style.animationPlayState = "paused";
     const img = target.querySelector("img");
     if (img) img.style.animationPlayState = "paused";
