@@ -40,6 +40,26 @@ export default function PopupView() {
     setBubbleState((s) => ({ ...s, [id]: { ...(s[id] || {}), visible: false } }));
   };
 
+  // house2 씬에서 순서대로 보여줄 대화 이미지들
+  const overlayFrames = [
+    "/house2/popup2_1.png",
+    "/house2/popup2_2.png",
+    "/house2/popup2_3.png",
+    "/house2/popup2_4.png",
+    "/house2/popup2_5.png",
+    "/house2/popup2_6.png",
+  ];
+  // -1: 아직 오버레이 없음(배경만 보임), 0~N-1: overlayFrames 인덱스
+  const [frameIndex, setFrameIndex] = useState(-1);
+
+  const handleAdvanceFrame = useCallback(() => {
+    setFrameIndex((prev) => {
+      // 마지막 장을 본 뒤 한 번 더 누르면, 다시 배경만 보이도록 -1로 리셋
+      if (prev >= overlayFrames.length - 1) return -1;
+      return prev + 1;
+    });
+  }, [overlayFrames.length]);
+
   // Raindrop layout (기존 버블 레이아웃을 기반으로, 이미지와 속도만 변경)
   const baseBubbles = [
     { id:'b1',  top:18, left:21, width:4,  img:'/house2/raindrop1.png', dx:'0px', dy:'32px', dur:'8.0s', float:'3.5s', dWrap:'-0.8s', dImg:'-0.6s' },
@@ -151,7 +171,17 @@ export default function PopupView() {
   return (
     <Main onPointerDown={handlePointerDown}>
       <GlobalStyles />
-      <HouseWrap className="houseWrap">
+      <HouseWrap
+        className="houseWrap"
+        onClick={(e) => {
+          // 빗방울(raindrop)을 클릭한 경우에는 대화 시퀀스를 열지 않는다.
+          if (e.target.closest?.(".bubbleWrap")) return;
+          // 배경 이미지를 처음 눌렀을 때만 시퀀스를 시작
+          if (frameIndex < 0) {
+            setFrameIndex(0);
+          }
+        }}
+      >
         <HouseImg src="/house2/house2.png" alt="House 2" />
 
         {/* popup3의 연기처럼, 처음에 화면을 가득 덮었다가 좌우로 열리는 커튼 */}
@@ -184,9 +214,32 @@ export default function PopupView() {
             </Bubble>
           )
         ))}
+
+        {/* house2 배경 위에 순서대로 덮이는 대화 프레임 */}
+        {frameIndex >= 0 && (
+          <HouseImg
+            src={overlayFrames[frameIndex]}
+            alt="Bath story frame"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100vw",
+              height: "100vh",
+              objectFit: "cover", // 화면 비율에 딱 맞게
+            }}
+            onClick={(e) => {
+              // 사진 속 화살표를 누른 것처럼, 이미지를 클릭하면 다음 페이지로
+              e.stopPropagation();
+              handleAdvanceFrame();
+            }}
+          />
+        )}
       </HouseWrap>
 
-      <CloseButton onClick={() => window.close()}>닫기</CloseButton>
+      <CloseButton
+        aria-label="닫기"
+        onClick={() => window.close()}
+      />
     </Main>
   );
 }
