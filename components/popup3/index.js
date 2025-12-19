@@ -45,12 +45,12 @@ export default function PopupView() {
 
   // 앞쪽에 순서대로 보여줄 대화 이미지들
   const overlayFrames = [
-    "/house3/popup_3/popup2_1.png",
-    "/house3/popup_3/popup2_2.png",
-    "/house3/popup_3/popup2_3.png",
-    "/house3/popup_3/popup2_4.png",
-    "/house3/popup_3/popup2_5.png",
-    "/house3/popup_3/popup2_6.png",
+    "/house3/popup_3/popup3_11.png",
+    "/house3/popup_3/popup3_12.png",
+    "/house3/popup_3/popup3_13.png",
+    "/house3/popup_3/popup3_14.png",
+    "/house3/popup_3/popup3_15.png",
+    "/house3/popup_3/popup3_16.png",
   ];
   // -1: 아직 오버레이 없음(배경만 보임), 0~N-1: overlayFrames 인덱스
   const [frameIndex, setFrameIndex] = useState(-1);
@@ -62,6 +62,13 @@ export default function PopupView() {
       return prev + 1;
     });
   }, [overlayFrames.length]);
+
+  const handleBackgroundClick = useCallback(() => {
+    // 배경(house_3) 이미지를 처음 눌렀을 때만 시퀀스를 시작
+    if (frameIndex < 0) {
+      setFrameIndex(0);
+    }
+  }, [frameIndex]);
 
   // 방문 플래그 설정 (메인 페이지에서 배경 전환용)
   useEffect(() => {
@@ -86,7 +93,7 @@ export default function PopupView() {
         }}
         onClick={(e) => {
           e.stopPropagation();
-          handleAdvanceFrame();
+          handleBackgroundClick();
         }}
       >
         {/* 항상 뒤에 깔리는 배경 이미지 */}
@@ -107,6 +114,11 @@ export default function PopupView() {
               width: "100vw",
               height: "100vh",
               objectFit: "cover", // 화면 비율에 맞춰 꽉 차게 표시
+            }}
+            onClick={(e) => {
+              // 사진 속 화살표를 누른 것처럼, 이미지를 클릭하면 다음 페이지로
+              e.stopPropagation();
+              handleAdvanceFrame();
             }}
           />
         )}
