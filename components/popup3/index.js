@@ -67,7 +67,7 @@ export default function PopupView() {
   useEffect(() => {
     const handleBeforeUnload = () => {
       try {
-        window.localStorage.setItem("visitedPopup", "true");
+        window.localStorage.setItem("visitedPopup3", "true");
       } catch {}
     };
     window.addEventListener("beforeunload", handleBeforeUnload);

@@ -22,7 +22,7 @@ export default function PopupView() {
   useEffect(() => {
     const handleBeforeUnload = () => {
       try {
-        window.localStorage.setItem("visitedPopup", "true");
+        window.localStorage.setItem("visitedPopup1", "true");
       } catch {}
     };
     window.addEventListener("beforeunload", handleBeforeUnload);

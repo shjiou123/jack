@@ -9,7 +9,8 @@ export default function MainPage() {
   const dragRafIdRef = useRef(null);
   const dragDeltaRef = useRef({ dx: 0, dy: 0 });
   const isDraggingRef = useRef(false);
-  const [hasVisitedPopup, setHasVisitedPopup] = useState(false);
+  // 0: 아침, 1: 저녁, 2: 밤
+  const [sceneStage, setSceneStage] = useState(0);
   const [rainBursts, setRainBursts] = useState([]);
 
   // Random clouds (6 images) - generate on client after mount to avoid SSR hydration mismatch
@@ -88,22 +89,42 @@ export default function MainPage() {
     }, 3000);
   }, []);
 
-  // 메인 줄기 장면 단계 관리 (아침 → 저녁 2단계).
-  // 새로고침하면 항상 아침으로 시작하고, 팝업 탭에서 localStorage "visitedPopup" 값이 바뀌면 storage 이벤트로 반영.
+  // 메인 줄기 장면 단계 관리 (아침 → 저녁 → 밤 3단계).
+  // 팝업 1, 2, 3 의 방문 여부를 localStorage 로 확인해서
+  // - 0개 방문: 아침
+  // - 1~2개 방문: 저녁
+  // - 3개 모두 방문: 밤 으로 전환한다.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const computeStageFromStorage = () => {
+      try {
+        const v1 = window.localStorage.getItem("visitedPopup1") === "true";
+        const v2 = window.localStorage.getItem("visitedPopup2") === "true";
+        const v3 = window.localStorage.getItem("visitedPopup3") === "true";
+        const visitedCount = [v1, v2, v3].filter(Boolean).length;
+        if (visitedCount >= 3) return 2; // night
+        if (visitedCount >= 1) return 1; // evening
+        return 0; // morning
+      } catch {
+        return 0;
+      }
+    };
+
+    // 초기 단계 설정
+    setSceneStage(computeStageFromStorage());
+
     const handleStorage = (e) => {
-      if (e.key === "visitedPopup" && e.newValue === "true") {
-        setHasVisitedPopup(true);
+      if (
+        e.key === "visitedPopup1" ||
+        e.key === "visitedPopup2" ||
+        e.key === "visitedPopup3"
+      ) {
+        setSceneStage(computeStageFromStorage());
       }
     };
 
     window.addEventListener("storage", handleStorage);
-    try {
-      window.localStorage.removeItem("visitedPopup");
-    } catch {}
-    setHasVisitedPopup(false);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
@@ -399,12 +420,19 @@ export default function MainPage() {
           src="/main_morning.png"
           alt="Stem - morning"
         />
-        {/* 팝업 다녀온 후: 저녁 줄기 이미지가 부드럽게 페이드인 */}
+        {/* 팝업을 일부 방문한 후: 저녁 줄기 이미지가 부드럽게 페이드인 */}
         <JackImgOverlay
           className="jackImg"
           src="/main_evening.png"
           alt="Stem - evening"
-          $visible={hasVisitedPopup}
+          $visible={sceneStage >= 1 && sceneStage < 2}
+        />
+        {/* 모든 팝업을 다녀온 후: 밤 줄기 이미지로 한 번 더 페이드인 */}
+        <JackImgOverlay
+          className="jackImg"
+          src="/main_night.png"
+          alt="Stem - night"
+          $visible={sceneStage >= 2}
         />
         <DoorHotspot
           aria-label="문 열기"
