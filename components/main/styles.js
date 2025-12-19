@@ -33,7 +33,13 @@ const rainFall = keyframes`
 `;
 
 export const GlobalStyles = createGlobalStyle`
-  .cloudWrap { cursor: grab; touch-action: none; will-change: transform; }
+  .cloudWrap {
+    cursor: grab;
+    touch-action: none;
+    will-change: transform;
+    /* 드래그 시 위치 변화가 조금 더 유연하게 느껴지도록 약한 트랜지션 추가 */
+    transition: transform 0.12s ease-out;
+  }
   .cloudWrap:active { cursor: grabbing; }
   .cloudImg { user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
   .jackWrap { cursor: default; touch-action: auto; }

@@ -1,5 +1,16 @@
 import { useRef, useCallback, useState, useEffect } from "react";
-import { GlobalStyles, Main, CloudWrap, CloudImg, JackWrap, JackImg, JackImgOverlay, DoorHotspot, RainDropWrap, RainDropImg } from "./styles";
+import {
+  GlobalStyles,
+  Main,
+  CloudWrap,
+  CloudImg,
+  JackWrap,
+  JackImg,
+  JackImgOverlay,
+  DoorHotspot,
+  RainDropWrap,
+  RainDropImg,
+} from "./styles";
 
 //test
 export default function MainPage() {
@@ -111,8 +122,14 @@ export default function MainPage() {
       }
     };
 
-    // 초기 단계 설정
-    setSceneStage(computeStageFromStorage());
+    // 새로고침 시에는 항상 아침(0)부터 시작하도록,
+    // 이전 방문 기록은 초기 마운트 때 한 번 비워 준다.
+    try {
+      window.localStorage.removeItem("visitedPopup1");
+      window.localStorage.removeItem("visitedPopup2");
+      window.localStorage.removeItem("visitedPopup3");
+    } catch {}
+    setSceneStage(0);
 
     const handleStorage = (e) => {
       if (
@@ -454,8 +471,8 @@ export default function MainPage() {
           target="_blank"
           rel="noopener noreferrer"
           title="새 팝업 열기"
-          $top="49%"   // Y축으로 1% 위로
-          $left="51%"  // X축으로 1% 오른쪽으로
+          $top="48%"   // Y축으로 추가로 1% 위로
+          $left="52%"  // X축으로 추가로 1% 오른쪽으로
           $width="15%"
           $height="3%"
         />

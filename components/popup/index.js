@@ -127,15 +127,15 @@ export default function PopupView() {
 
   // Foot story 이미지 시퀀스 (말풍선 이미지를 대체)
   // 말풍선 안에서 순서대로 보여줄 팝업 이미지들
-  // 마지막 장(popup1_6)이 끝나면 말풍선이 닫히고,
+  // 마지막 장이 끝나면 말풍선이 닫히고,
   // 배경에 깔린 HouseImg(`/foot/foot.png`)만 남는다.
   const footFrames = [
-    "/foot/popup1_1.png",
-    "/foot/popup1_2.png",
-    "/foot/popup1_3.png",
-    "/foot/popup1_4.png",
-    "/foot/popup1_5.png",
-    "/foot/popup1_6.png",
+    "/house1/popup1_10.png",
+    "/house1/popup1_11.png",
+    "/house1/popup1_12.png",
+    "/house1/popup1_13.png",
+    "/house1/popup1_14.png",
+    "/house1/popup1_15.png",
   ];
 
   const handlePointerMove = useCallback((e) => {
