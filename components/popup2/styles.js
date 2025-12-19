@@ -163,9 +163,9 @@ export const BubbleImg = styled.img`
 
 export const CloseButton = styled.button`
   position: fixed;
-  /* 문 위치를 Y축으로 더 위, X축으로 더 오른쪽으로 이동 (대략 +3% / +2% 정도) */
-  top: 0;
-  right: 70px;
+  /* popup3 와 동일한 위치에 놓이도록 (우상단 18px, 18px) */
+  top: 18px;
+  right: 18px;
   width: 44px;
   height: 44px;
   padding: 0;
